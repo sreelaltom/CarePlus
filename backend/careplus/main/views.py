@@ -27,6 +27,12 @@ class LoginView(APIView):
             # Generate JWT tokens
             refresh = RefreshToken.for_user(user)
             return Response({
+                'username': user.username,
+                'email': user.email,
+                'is_patient': user.is_patient,
+                'is_doctor': user.is_doctor,
+                'registration_id': user.registration_id,
+                'phone_number': user.phone_number,
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
                 'message': 'Login successful!'
