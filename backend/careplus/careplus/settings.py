@@ -137,9 +137,11 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),  # Extend access token to 2 hours
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=7),  # Refresh token valid for 7 days
-    "ROTATE_REFRESH_TOKENS": True,  # Issue new refresh token on refresh
-    "BLACKLIST_AFTER_ROTATION": True,  # Blacklist old refresh token after rotation
-    "AUTH_HEADER_TYPES": ("Bearer",),  # Default token type
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=2),  # Increase token lifetime
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=20),  # Increase refresh token lifetime
+    "ROTATE_REFRESH_TOKENS": True,  # Rotate refresh tokens on use
+    "BLACKLIST_AFTER_ROTATION": True,  # Blacklist old refresh tokens
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }
