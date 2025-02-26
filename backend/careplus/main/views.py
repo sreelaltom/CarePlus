@@ -15,12 +15,13 @@ class RegisterView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        # Check if user already exists
-        if 'email' in serializer.errors or 'username' in serializer.errors:
+
+        # Custom error response for username and email
+        if 'error' in serializer.errors:
             return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
-        
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.errors, status=status.HTTP_409_CONFLICT)
+
 
 class LoginView(APIView):
     def post(self, request):
@@ -33,13 +34,13 @@ class LoginView(APIView):
             try:
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Invalid credentials'}, status=status.HTTP_404_NOT_FOUND)
 
         elif registration_id:
             try:
                 user = User.objects.get(registration_id=registration_id)
             except User.DoesNotExist:
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Invalid credentials'}, status=status.HTTP_404_NOT_FOUND)
 
         if user and user.check_password(password):
             refresh = RefreshToken.for_user(user)
