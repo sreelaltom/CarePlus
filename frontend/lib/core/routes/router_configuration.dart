@@ -1,31 +1,26 @@
-// import 'package:flutter/material.dart';
-import 'package:frontend/auth/presentation/pages/login_page.dart';
-import 'package:frontend/auth/presentation/pages/signup_page_one.dart';
-import 'package:frontend/auth/presentation/pages/signup_page_two.dart';
+import 'package:flutter/material.dart';
+import 'package:frontend/core/config/session_manager.dart';
+import 'package:frontend/features/auth/presentation/pages/login_page.dart';
+import 'package:frontend/features/auth/presentation/pages/register_page_one.dart';
+import 'package:frontend/features/auth/presentation/pages/register_page_two.dart';
 import 'package:frontend/core/routes/route_constants.dart';
-import 'package:frontend/core/routes/slide_transition_shell.dart';
+import 'package:frontend/core/routes/slide_transition_wrapper.dart';
+import 'package:frontend/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:developer' as developer;
 
-// final email = 'email';
-// final registrationID = 'blah';
-// final phone = '123';
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class RouterConfiguration {
   static get router => _router;
   static final _router = GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: '/login',
-    // initialLocation: '/signup-two-user/$email/$phone',
     routes: <RouteBase>[
       GoRoute(
         name: RouteNames.signupTwoDoctor,
         path: '/signup-two-doctor/:regId/:phone',
-        // pageBuilder: (context, state) => MaterialPage(
-        //   child: SignupPageTwo.doctor(
-        //     regId: state.pathParameters['regId']!,
-        //     phone: state.pathParameters['phone']!,
-        //   ),
-        // ),
-        pageBuilder: (context, state) => slideTransitionShell(
+        pageBuilder: (context, state) => slideTransitionWrapper(
           page: SignupPageTwo.doctor(
             regId: state.pathParameters['regId']!,
             phone: state.pathParameters['phone']!,
@@ -33,36 +28,45 @@ class RouterConfiguration {
         ),
       ),
       GoRoute(
-          name: RouteNames.signupTwoUser,
-          path: '/signup-two-user/:email/:phone',
-          // pageBuilder: (context, state) => MaterialPage(
-          //       child: SignupPageTwo.user(
-          //         email: state.pathParameters['email']!,
-          //         phone: state.pathParameters['phone']!,
-          //       ),
-          //     )
-          pageBuilder: (context, state) => slideTransitionShell(
-            page: SignupPageTwo.user(
-              email: state.pathParameters['email']!,
-              phone: state.pathParameters['phone']!,
-            ),
+        name: RouteNames.signupTwoUser,
+        path: '/signup-two-user/:email/:phone',
+        pageBuilder: (context, state) => slideTransitionWrapper(
+          page: SignupPageTwo.user(
+            email: state.pathParameters['email']!,
+            phone: state.pathParameters['phone']!,
           ),
-          ),
+        ),
+      ),
       GoRoute(
         name: RouteNames.login,
         path: '/login',
-        // pageBuilder: (context, state) =>
-        //     MaterialPage(child: LoginPage()),
+        redirect: (context, state) async {
+          final session = await SessionManager().hadActiveSession();
+          final userLoggedIn = session != null;
+          if (userLoggedIn) {
+            return '/dashboard/${session.userID}/${session.accessToken}/${session.refreshToken}';
+          }
+          return null;
+        },
         pageBuilder: (context, state) =>
-            slideTransitionShell(page: LoginPage()),
+            slideTransitionWrapper(page: LoginPage()),
       ),
       GoRoute(
         name: RouteNames.signupOne,
         path: '/signup-one',
-        // pageBuilder: (context, state) =>
-        //     MaterialPage(child: SignupPageOne()),
         pageBuilder: (context, state) =>
-            slideTransitionShell(page: SignupPageOne()),
+            slideTransitionWrapper(page: SignupPageOne()),
+      ),
+      GoRoute(
+        name: RouteNames.dashboard,
+        path: '/dashboard/:user_id/:access_token/:refresh_token',
+        pageBuilder: (context, state) => slideTransitionWrapper(
+          page: DashboardPage(
+            userID: state.pathParameters['user_id']!,
+            accessToken: state.pathParameters['access_token']!,
+            refreshToken: state.pathParameters['refresh_token']!,
+          ),
+        ),
       ),
     ],
   );

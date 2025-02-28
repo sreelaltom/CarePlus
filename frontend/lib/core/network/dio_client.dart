@@ -1,17 +1,24 @@
 import 'package:dio/dio.dart';
+import 'package:frontend/core/network/api_urls.dart';
 import 'package:frontend/core/network/interceptors.dart';
 
 class DioClient {
   late final Dio _dio;
+  Interceptors get interceptors => _dio.interceptors;
   DioClient()
       : _dio = Dio(
           BaseOptions(
+            baseUrl: ApiUrls.baseUrl,
             headers: {'Content-Type': 'application/json; charset=UTF-8'},
             responseType: ResponseType.json,
-            sendTimeout: const Duration(seconds: 5),
-            receiveTimeout: const Duration(seconds: 5),
+            sendTimeout: const Duration(seconds: 10000),
+            receiveTimeout: const Duration(seconds: 10000),
+            connectTimeout: const Duration(seconds: 20000),
           ),
-        )..interceptors.addAll([LoggerInterceptor()]);
+        )..interceptors.addAll([
+            LoggerInterceptor(),
+            AuthorizationInterceptor(),
+          ]);
 
   Future<Response> get(
     String url, {
@@ -97,7 +104,32 @@ class DioClient {
         options: options,
         cancelToken: cancelToken,
       );
-      return response.data;
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<Response> request(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    void Function(int, int)? onSendProgress,
+    void Function(int, int)? onReceiveProgress,
+  }) async {
+    try {
+      final response = await _dio.request(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        options: options,
+        onSendProgress: onSendProgress,
+        onReceiveProgress: onReceiveProgress,
+      );
+      return response;
     } catch (e) {
       rethrow;
     }

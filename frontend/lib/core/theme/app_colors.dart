@@ -16,4 +16,9 @@ class AppColors {
   static const mediumGrey = Color(0xFFA9A9A9);
   static const darkGrey = Color(0xFF808080);
   static const charcoalGrey = Color(0xFF333333);
+  static const success = Color(0xFF4CAF50);
+  static const info = Color(0xFF2196F3);
+  static const warning = Color(0xFFFFC107);
+  static const error = Color(0xFFF44336);
+  static const neutral = Color(0xFF607D8B);
 }
