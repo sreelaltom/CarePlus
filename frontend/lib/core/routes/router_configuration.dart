@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/core/config/session_manager.dart';
+import 'package:frontend/features/auth/presentation/bloc/session_cubit/session_cubit.dart';
+// import 'package:frontend/core/config/session_manager.dart';
 import 'package:frontend/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend/features/auth/presentation/pages/register_page_one.dart';
 import 'package:frontend/features/auth/presentation/pages/register_page_two.dart';
+import 'package:frontend/features/auth/domain/entities/session.dart';
 import 'package:frontend/core/routes/route_constants.dart';
 import 'package:frontend/core/routes/slide_transition_wrapper.dart';
 import 'package:frontend/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:go_router/go_router.dart';
+import 'package:frontend/service_locator.dart';
 import 'dart:developer' as developer;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -40,13 +43,24 @@ class RouterConfiguration {
       GoRoute(
         name: RouteNames.login,
         path: '/login',
-        redirect: (context, state) async {
-          final session = await SessionManager().hadActiveSession();
-          final userLoggedIn = session != null;
-          if (userLoggedIn) {
+        // redirect: (context, state) async {
+        //   final session = await SessionManager().hadActiveSession();
+        //   final userLoggedIn = session != null;
+        //   if (userLoggedIn) {
+        //     return '/dashboard/${session.userID}/${session.accessToken}/${session.refreshToken}';
+        //   }
+        //   return null;
+        // },
+        redirect: (context, state) async{
+          await serviceLocator<SessionCubit>().loadSession();
+          if (serviceLocator.isRegistered<Session>()) {
+            developer.log("GO ROUTER: Redirecting user to dashboard");
+            final session = serviceLocator<Session>();
             return '/dashboard/${session.userID}/${session.accessToken}/${session.refreshToken}';
+          } else {
+            developer.log("GO ROUTER: Redirecting user to login");
+            return '/login';
           }
-          return null;
         },
         pageBuilder: (context, state) =>
             slideTransitionWrapper(page: LoginPage()),

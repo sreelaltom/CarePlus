@@ -2,12 +2,13 @@ import 'package:dartz/dartz.dart';
 import 'package:frontend/features/auth/data/auth_remote_data_source.dart';
 // import 'package:frontend/auth/data/user_model.dart';
 import 'package:frontend/features/auth/domain/auth_repository.dart';
-import 'package:frontend/features/auth/domain/user_entity.dart';
+import 'package:frontend/features/auth/domain/entities/session.dart';
+import 'package:frontend/features/auth/domain/entities/user.dart';
 import 'package:frontend/service_locator.dart';
 
 class AuthRepositoryImplementation implements AuthRepository {
   @override
-  Future<Either<String, UserEntity>> register({
+  Future<Either<String, User>> register({
     String? email,
     String? registrationId,
     required String username,
@@ -36,7 +37,7 @@ class AuthRepositoryImplementation implements AuthRepository {
   }
 
   @override
-  Future<Either<String, UserEntity>> login({
+  Future<Either<String, (User, Session)>> login({
     String? email,
     String? registrationID,
     required String password,
@@ -49,7 +50,7 @@ class AuthRepositoryImplementation implements AuthRepository {
       );
       return response.fold(
         (error) => Left(error),
-        (user) => Right(user),
+        (userAndSession) => Right(userAndSession),
       );
     } catch (e) {
       return Left(e.toString());

@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:frontend/features/auth/domain/user_entity.dart';
+import 'package:frontend/features/auth/domain/entities/user.dart';
 
-class UserModel extends UserEntity {
+class UserModel extends User {
   UserModel({
     super.email,
     super.registrationID,

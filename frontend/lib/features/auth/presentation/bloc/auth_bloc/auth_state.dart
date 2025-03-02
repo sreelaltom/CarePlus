@@ -5,11 +5,14 @@ abstract class AuthState {}
 class AuthInitial extends AuthState {}
 
 class AuthSuccess extends AuthState {
-  final UserEntity user;
+  final User user;
+  final Session? session;
+
   final AuthSuccessType? type;
 
   AuthSuccess({
     required this.user,
+    this.session,
     this.type,
   });
 }
@@ -32,3 +35,8 @@ class UserAuthState extends AuthState {}
 class DoctorAuthState extends AuthState {}
 
 class SessionExpiredState extends AuthState {}
+
+(int, String) getDetails() => (1, "Partheev");
+
+final details = getDetails();
+
