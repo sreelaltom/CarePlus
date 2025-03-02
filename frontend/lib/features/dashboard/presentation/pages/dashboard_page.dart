@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/core/config/session_manager.dart';
+import 'package:frontend/features/auth/presentation/bloc/session_cubit/session_cubit.dart';
 import 'package:frontend/core/routes/route_constants.dart';
 import 'package:frontend/core/theme/app_colors.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_button.dart';
 import 'package:go_router/go_router.dart';
 
@@ -41,7 +40,12 @@ class DashboardPage extends StatelessWidget {
             ),
             onPressed: () async {
               // SessionManager().clearSession();
-              context.read<AuthBloc>().add(LogoutEvent(context: context));
+              await context
+                  .read<SessionCubit>()
+                  .terminateSession(isLogout: true);
+              if (context.mounted) {
+                context.goNamed(RouteNames.login);
+              }
               // context.read<AuthBloc>().add(SessionExpiredEvent());
             },
           ),

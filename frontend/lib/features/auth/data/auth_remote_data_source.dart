@@ -1,11 +1,14 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:frontend/features/auth/data/user_model.dart';
-import 'package:frontend/core/config/session_manager.dart';
+import 'package:frontend/features/auth/presentation/bloc/session_cubit/session_cubit.dart';
+import 'package:frontend/features/auth/data/models/session_model.dart';
+import 'package:frontend/features/auth/data/models/user_model.dart';
 import 'package:frontend/core/config/storage_manager.dart';
 import 'package:frontend/core/network/api_urls.dart';
 import 'package:frontend/core/network/dio_client.dart';
 import 'dart:developer' as developer;
+
+import 'package:frontend/service_locator.dart';
 
 abstract interface class AuthRemoteDataSource {
   Future<Either<String, UserModel>> register({
@@ -18,7 +21,7 @@ abstract interface class AuthRemoteDataSource {
     required bool isDoctor,
   });
 
-  Future<Either<String, UserModel>> login({
+  Future<Either<String, (UserModel, SessionModel)>> login({
     String? email,
     String? registrationID,
     required String password,
@@ -66,15 +69,15 @@ class AuthRemoteDataSourceImplementation implements AuthRemoteDataSource {
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
         // developer.log(e.response?.data);
-        return Left(
-            (e.response?.data as Map<String,dynamic>)["error"] ?? "Credentials already existsssssss.");
+        return Left((e.response?.data as Map<String, dynamic>)["error"] ??
+            "Credentials already existsssssss.");
       }
       return Left(e.toString());
     }
   }
 
   @override
-  Future<Either<String, UserModel>> login({
+  Future<Either<String, (UserModel, SessionModel)>> login({
     String? email,
     String? registrationID,
     required String password,
@@ -92,12 +95,15 @@ class AuthRemoteDataSourceImplementation implements AuthRemoteDataSource {
       final body = response.data as Map<String, dynamic>;
       switch (response.statusCode) {
         case 200:
-          await SessionManager().createSession(
-            userID: (body['uid'] as int).toString(),
-            accessToken: body['access'],
-            refreshToken: body['refresh'],
-          );
-          return Right(UserModel.fromMap(body));
+          // await SessionManager().createSession(
+          //   userID: (body['uid'] as int).toString(),
+          //   accessToken: body['access'],
+          //   refreshToken: body['refresh'],
+          // );
+          return Right((
+            UserModel.fromMap(body),
+            SessionModel.fromMap(body),
+          ));
         case 404:
           return Left("User not found");
         default:
@@ -128,7 +134,7 @@ class AuthRemoteDataSourceImplementation implements AuthRemoteDataSource {
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 403) {
-        SessionManager().clearSession();
+        serviceLocator<SessionCubit>().terminateSession();
       }
     } catch (e) {
       developer.log("UNHANDLED EXCEPTION WHILE TOKEN REFRESH");

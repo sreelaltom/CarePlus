@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/auth/presentation/auth_validators.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:frontend/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_button.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_input.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_prompt.dart';

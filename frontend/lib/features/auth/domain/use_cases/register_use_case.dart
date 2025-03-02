@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:frontend/features/auth/domain/auth_repository.dart';
-import 'package:frontend/features/auth/domain/user_entity.dart';
+import 'package:frontend/features/auth/domain/entities/user.dart';
 import 'package:frontend/service_locator.dart';
 
 class RegisterUseCase {
-  Future<Either<String,UserEntity>> call({
+  Future<Either<String,User>> call({
     String? email,
     String? registrationId,
     required String name,

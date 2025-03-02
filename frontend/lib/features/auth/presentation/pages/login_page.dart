@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:frontend/core/common/app_enums.dart';
-import 'package:frontend/core/config/session_manager.dart';
+import 'package:frontend/features/auth/presentation/bloc/session_cubit/session_cubit.dart';
 import 'package:frontend/features/auth/presentation/auth_validators.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:frontend/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_button.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_prompt.dart';
 import 'package:frontend/features/auth/presentation/widgets/email_reg_field.dart';
@@ -15,6 +15,7 @@ import 'package:frontend/core/config/responsive.dart';
 import 'package:frontend/core/routes/route_constants.dart';
 import 'package:frontend/core/theme/app_colors.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:developer' as developer;
 
 class LoginPage extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -42,7 +43,7 @@ class LoginPage extends StatelessWidget {
               (current is AuthFailure &&
                   ![AuthFailureType.logout, AuthFailureType.sessionExpired]
                       .contains(current.type))),
-      listener: (context, state) {
+      listener: (context, state) async {
         final message = state is AuthSuccess
             ? state.type?.message ?? "Login Successful"
             : (state as AuthFailure).error ??
@@ -63,19 +64,24 @@ class LoginPage extends StatelessWidget {
             toastLength: Toast.LENGTH_SHORT,
           );
         }
-        if (state is AuthSuccess) {
+        if (state is AuthFailure) {
+          context.read<AuthBloc>().add(SelectUserAuthEvent());
+        } else if (state is AuthSuccess && state.session != null) {
           context.goNamed(
             RouteNames.dashboard,
             pathParameters: {
-              'user_id': SessionManager().userID!,
-              'access_token': SessionManager().accessToken!,
-              'refresh_token': SessionManager().refreshToken!,
+              'user_id': state.session!.userID.toString(),
+              'access_token': state.session!.accessToken,
+              'refresh_token': state.session!.refreshToken,
             },
           );
-        }
-        if (state is AuthFailure) {
-          context.read<AuthBloc>().add(SelectUserAuthEvent());
-          debugPrint('Login successful navigate to Home');
+          context.read<SessionCubit>().createSession(session: state.session!);
+        } else {
+          if (state is AuthSuccess) {
+            developer.log("AuthSuccess.session = ${state.session}");
+          } else {
+            developer.log("AuthState is ${state.runtimeType}");
+          }
         }
       },
       child: Scaffold(

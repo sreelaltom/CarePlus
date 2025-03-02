@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/features/auth/presentation/auth_validators.dart';
-import 'package:frontend/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:frontend/features/auth/presentation/bloc/auth_bloc/auth_bloc.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_input.dart';
 
 class EmailOrRegIdField extends StatelessWidget {

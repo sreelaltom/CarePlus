@@ -1,8 +1,9 @@
 import 'package:dartz/dartz.dart';
-import 'package:frontend/features/auth/domain/user_entity.dart';
+import 'package:frontend/features/auth/domain/entities/session.dart';
+import 'package:frontend/features/auth/domain/entities/user.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<String, UserEntity>> register({
+  Future<Either<String, User>> register({
     String? email,
     String? registrationId,
     required String username,
@@ -12,10 +13,11 @@ abstract interface class AuthRepository {
     required bool isDoctor,
   });
 
-  Future<Either<String,UserEntity>> login({
-
+  Future<Either<String, (User, Session)>> login({
     String? email,
     String? registrationID,
     required String password,
   });
+
+  // Future<String?> refreshToken();
 }

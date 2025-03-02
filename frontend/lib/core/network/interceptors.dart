@@ -1,8 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/common/app_extensions.dart';
 import 'package:frontend/features/auth/data/auth_remote_data_source.dart';
-import 'package:frontend/core/config/session_manager.dart';
-import 'package:frontend/core/config/storage_manager.dart';
+import 'package:frontend/features/auth/domain/entities/session.dart';
 import 'package:frontend/core/network/api_urls.dart';
 import 'package:frontend/core/network/dio_client.dart';
 import 'package:frontend/service_locator.dart';
@@ -63,14 +62,13 @@ class AuthorizationInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     try {
-      if (SessionManager().hasSession.value) {
-        final storage = SecureStorageManager();
-        final token = await storage.retrieve(
-          key: options.path != ApiUrls.refreshToken
-              ? StorageKeys.accessToken
-              : StorageKeys.refreshToken,
-        );
-        options.headers['Authorization'] = "Bearer ${options.path != token}";
+      if (serviceLocator.isRegistered<Session>()) {
+        final session = serviceLocator<Session>();
+        final token =  options.path != ApiUrls.refreshToken
+              ? session.accessToken
+              : session.refreshToken;
+        
+        options.headers['Authorization'] = "Bearer $token";
       }
       handler.next(options);
     } catch (e) {
@@ -91,16 +89,6 @@ class AuthorizationInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (response.statusCode == 409) {
-      final interceptedData = {
-        if ((response.data as Map<String, dynamic>).keys.length == 1)
-          "error":
-              "${(response.data as Map<String, dynamic>).keys.first.replaceAll("_", " ").capitalize} already exists."
-        else
-          "error": "Credentials already exists."
-      };
-      response.data = interceptedData;
-    }
     handler.next(response);
   }
 
