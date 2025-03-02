@@ -10,10 +10,7 @@ class SecureStorageManager {
 
   final _storage = const FlutterSecureStorage();
 
-  Future<void> store({
-    required String key,
-    required String value,
-  }) async =>
+  Future<void> store({required String key, required String value}) async =>
       await _storage.write(key: key, value: value);
 
   Future<String?> retrieve({required String key}) async =>
@@ -21,4 +18,10 @@ class SecureStorageManager {
 
   Future<void> delete({required String key}) async =>
       await _storage.delete(key: key);
+}
+
+class StorageKeys {
+  static final userID = 'user_id';
+  static final accessToken = 'access_token';
+  static final refreshToken = 'refresh_token';
 }
