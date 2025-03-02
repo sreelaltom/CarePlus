@@ -1,11 +1,12 @@
-### views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate
-from .serializers import RegisterSerializer
+from rest_framework.permissions import IsAuthenticated
+from .models import MedicalFile
+from .serializers import MedicalFileSerializer, RegisterSerializer
+from .cloudinary_helper import delete_file
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
@@ -71,3 +72,37 @@ class TokenRefreshView(APIView):
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": "Invalid refresh token"}, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class UploadMedicalFileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """Upload a medical file for the authenticated user."""
+        serializer = MedicalFileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetMedicalFilesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Fetch all medical files uploaded by the authenticated user."""
+        medical_files = MedicalFile.objects.filter(user=request.user)
+        serializer = MedicalFileSerializer(medical_files, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class DeleteMedicalFileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, file_id):
+        """Delete a medical file if it belongs to the authenticated user."""
+        try:
+            medical_file = MedicalFile.objects.get(id=file_id, user=request.user)
+            delete_file(medical_file.cloudinary_url)  # Delete from Cloudinary
+            medical_file.delete()  # Delete from DB
+            return Response({"message": "File deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+        except MedicalFile.DoesNotExist:
+            return Response({"error": "File not found or unauthorized."}, status=status.HTTP_404_NOT_FOUND)
