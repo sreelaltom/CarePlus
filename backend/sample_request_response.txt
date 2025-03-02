@@ -1,0 +1,207 @@
+### Updated API Endpoints
+
+---
+
+## **Register Endpoint**
+- **URL:** `/api/register/`
+- **Method:** `POST`
+
+### **Sample Request (Doctor Registration)**
+```json
+{
+    "username": "doctor123",
+    "email": "doctor@example.com",
+    "password": "strongpassword123",
+    "is_patient": false,
+    "is_doctor": true,
+    "registration_id": "DOC12345",
+    "phone_number": "+1234567890"
+}
+```
+
+### **Sample Response (Success)**
+```json
+{
+    "username": "doctor123",
+    "email": "doctor@example.com",
+    "is_patient": false,
+    "is_doctor": true,
+    "registration_id": "DOC12345",
+    "phone_number": "+1234567890"
+}
+```
+
+### **Sample Response (Validation Error)**
+```json
+{
+    "email": ["This field must be unique."],
+    "password": ["This field may not be blank."]
+}
+```
+
+---
+
+### **Sample Request (Patient Registration)**
+```json
+{
+    "username": "patient123",
+    "email": "patient@example.com",
+    "password": "patientpassword123",
+    "is_patient": true,
+    "is_doctor": false,
+    "registration_id": "PAT56789",
+    "phone_number": "+0987654321"
+}
+```
+
+### **Sample Response (Success)**
+```json
+{
+    "username": "patient123",
+    "email": "patient@example.com",
+    "is_patient": true,
+    "is_doctor": false,
+    "registration_id": "PAT56789",
+    "phone_number": "+0987654321"
+}
+```
+
+---
+
+## **Login Endpoint**
+- **URL:** `/api/login/`
+- **Method:** `POST`
+
+### **Sample Request (Doctor Login - Correct Password)**
+```json
+{
+    "username": "doctor123",
+    "password": "strongpassword123"
+}
+```
+
+### **Sample Response (Success)**
+```json
+{
+    "uid": 1,
+    "username": "doctor123",
+    "email": "doctor@example.com",
+    "is_patient": false,
+    "is_doctor": true,
+    "registration_id": "DOC12345",
+    "phone_number": "+1234567890",
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "message": "Login successful!"
+}
+```
+
+### **Sample Request (Doctor Login - Incorrect Password)**
+```json
+{
+    "username": "doctor123",
+    "password": "wrongpassword"
+}
+```
+
+### **Sample Response (Invalid Credentials)**
+```json
+{
+    "error": "Invalid credentials"
+}
+```
+
+---
+
+### **Sample Request (Patient Login - Correct Password)**
+```json
+{
+    "username": "patient123",
+    "password": "patientpassword123"
+}
+```
+
+### **Sample Response (Success)**
+```json
+{
+    "uid": 2,
+    "username": "patient123",
+    "email": "patient@example.com",
+    "is_patient": true,
+    "is_doctor": false,
+    "registration_id": "PAT56789",
+    "phone_number": "+0987654321",
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "message": "Login successful!"
+}
+```
+
+### **Sample Request (Patient Login - Incorrect Password)**
+```json
+{
+    "username": "patient123",
+    "password": "wrongpassword"
+}
+```
+
+### **Sample Response (Invalid Credentials)**
+```json
+{
+    "error": "Invalid credentials"
+}
+```
+
+---
+
+## **Token Refresh Endpoint**
+- **URL:** `/api/token/refresh/`
+- **Method:** `POST`
+
+### **Sample Request (Valid Refresh Token)**
+```json
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### **Sample Response (New Access Token)**
+```json
+{
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### **Sample Request (Invalid Refresh Token)**
+```json
+{
+    "refresh": "invalidtoken123"
+}
+```
+
+### **Sample Response (Error)**
+```json
+{
+    "error": "Invalid refresh token"
+}
+```
+
+---
+
+## **Explanation**
+1. **Registration Request:**
+   - Allows patients and doctors to register with unique details.
+   - Doctors must provide a `registration_id`.
+   - Users must have a unique `email`.
+
+2. **Login Request:**
+   - Users can log in with `username` and `password`.
+   - On success, it returns JWT `refresh` and `access` tokens.
+   - If credentials are incorrect, it returns an error message.
+
+3. **Token Refresh:**
+   - Requires a valid refresh token to obtain a new access token.
+   - If the refresh token is invalid, it returns an error.
+
+Let me know if you need more modifications! 🚀
+

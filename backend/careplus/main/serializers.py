@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from .models import MedicalFile
+from .cloudinary_helper import upload_file
 
 User = get_user_model()
 
@@ -38,3 +40,16 @@ class RegisterSerializer(serializers.ModelSerializer):
             phone_number=validated_data.get('phone_number', None),
         )
         return user
+
+
+class MedicalFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicalFile
+        fields = ['id', 'file', 'cloudinary_url', 'file_type', 'uploaded_at']
+
+    def create(self, validated_data):
+        """Upload file to Cloudinary and save URL in the model."""
+        file = validated_data.pop("file")  # Get file object
+        cloudinary_url = upload_file(file)  # Upload and get Cloudinary URL
+        medical_file = MedicalFile.objects.create(cloudinary_url=cloudinary_url, **validated_data)
+        return medical_file
