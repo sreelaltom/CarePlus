@@ -1,3 +1,4 @@
+import 'package:frontend/core/network/cubit/connectivity_cubit.dart';
 import 'package:frontend/features/auth/data/auth_remote_data_source.dart';
 import 'package:frontend/features/auth/data/auth_repository_implementation.dart';
 import 'package:frontend/features/auth/domain/auth_repository.dart';
@@ -13,6 +14,7 @@ abstract class Dependencies {
   static Future<void> initialize() async {
     serviceLocator
       ..registerSingleton<SessionCubit>(SessionCubit())
+      ..registerSingleton<ConnectivityCubit>(ConnectivityCubit())
       ..registerSingleton<RegisterUseCase>(RegisterUseCase())
       ..registerSingleton<LoginUseCase>(LoginUseCase())
       ..registerSingleton<AuthRepository>(AuthRepositoryImplementation())
