@@ -68,7 +68,7 @@ class LoginPage extends StatelessWidget {
           context.read<AuthBloc>().add(SelectUserAuthEvent());
         } else if (state is AuthSuccess && state.session != null) {
           context.goNamed(
-            RouteNames.dashboard,
+            RouteNames.main,
             pathParameters: {
               'user_id': state.session!.userID.toString(),
               'access_token': state.session!.accessToken,

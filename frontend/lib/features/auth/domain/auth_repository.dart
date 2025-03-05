@@ -1,9 +1,10 @@
 import 'package:dartz/dartz.dart';
+import 'package:frontend/core/errors/failures.dart';
 import 'package:frontend/features/auth/domain/entities/session.dart';
 import 'package:frontend/features/auth/domain/entities/user.dart';
 
 abstract interface class AuthRepository {
-  Future<Either<String, User>> register({
+  Future<Either<Failure, User>> register({
     String? email,
     String? registrationId,
     required String username,
@@ -13,7 +14,7 @@ abstract interface class AuthRepository {
     required bool isDoctor,
   });
 
-  Future<Either<String, (User, Session)>> login({
+  Future<Either<Failure, (User, Session)>> login({
     String? email,
     String? registrationID,
     required String password,

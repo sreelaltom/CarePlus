@@ -4,7 +4,7 @@ import 'package:frontend/features/auth/domain/entities/user.dart';
 import 'package:frontend/service_locator.dart';
 
 class RegisterUseCase {
-  Future<Either<String,User>> call({
+  Future<Either<String, User>> call({
     String? email,
     String? registrationId,
     required String name,
@@ -13,7 +13,7 @@ class RegisterUseCase {
     required String phone,
     required String password,
   }) async {
-    return await serviceLocator<AuthRepository>().register(
+    final response = await serviceLocator<AuthRepository>().register(
       email: email,
       registrationId: registrationId,
       username: name,
@@ -21,6 +21,10 @@ class RegisterUseCase {
       phone: phone,
       isPatient: isPatient,
       isDoctor: isDoctor,
+    );
+    return response.fold(
+      (failure) => Left(failure.message),
+      (user) => Right(user),
     );
   }
 }

@@ -1,5 +1,6 @@
-import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:frontend/core/errors/error_handler.dart';
+import 'package:frontend/core/errors/exceptions.dart';
 import 'package:frontend/features/auth/data/models/session_model.dart';
 import 'package:frontend/features/auth/data/models/user_model.dart';
 import 'package:frontend/core/network/api_urls.dart';
@@ -7,7 +8,7 @@ import 'package:frontend/core/network/dio_client.dart';
 import 'dart:developer' as developer;
 
 abstract interface class AuthRemoteDataSource {
-  Future<Either<String, UserModel>> register({
+  Future<UserModel> register({
     String? email,
     String? registrationId,
     required String username,
@@ -17,7 +18,7 @@ abstract interface class AuthRemoteDataSource {
     required bool isDoctor,
   });
 
-  Future<Either<String, (UserModel, SessionModel)>> login({
+  Future<(UserModel, SessionModel)> login({
     String? email,
     String? registrationID,
     required String password,
@@ -28,7 +29,7 @@ abstract interface class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImplementation implements AuthRemoteDataSource {
   @override
-  Future<Either<String, UserModel>> register({
+  Future<UserModel> register({
     String? email,
     String? registrationId,
     required String username,
@@ -55,30 +56,21 @@ class AuthRemoteDataSourceImplementation implements AuthRemoteDataSource {
 
       switch (response.statusCode) {
         case 201:
-          return Right(UserModel.fromMap(body));
-        case 409:
-          return Left(body['error'] as String);
+          return UserModel.fromMap(body);
         default:
           developer.log(
               "REGISTER_API : Unhandled status code(${response.statusCode})");
-          return Left("Unhandled status code found");
+          throw AppException<Internal>(type: Internal.unknown);
       }
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 409) {
-        // developer.log(e.response?.data);
-        return Left((e.response?.data as Map<String, dynamic>)["error"] ??
-            "Credentials already exist.");
-      }
-      if (e.type == DioExceptionType.connectionError) {
-        developer.log("REGISTER API: connection error occurred");
-        return Left(e.response?.statusMessage ?? "Connection error occurred.");
-      }
-      return Left(e.toString());
+    } on Exception catch (e) {
+      throw ErrorHandler.serverOrNetworkException(e);
+    } catch (e) {
+      throw AppException<Internal>(type: Internal.unknown);
     }
   }
 
   @override
-  Future<Either<String, (UserModel, SessionModel)>> login({
+  Future<(UserModel, SessionModel)> login({
     String? email,
     String? registrationID,
     required String password,
@@ -96,26 +88,19 @@ class AuthRemoteDataSourceImplementation implements AuthRemoteDataSource {
       final body = response.data as Map<String, dynamic>;
       switch (response.statusCode) {
         case 200:
-          return Right((
+          return (
             UserModel.fromMap(body),
             SessionModel.fromMap(body),
-          ));
+          );
         default:
           developer
               .log("LOGIN_API : Unhandled status code(${response.statusCode})");
-          return Left("Unhandled status code found");
+          throw AppException<Internal>(type: Internal.unknown);
       }
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        return Left("Invalid Credentials");
-      }
-      if (e.type == DioExceptionType.connectionError) {
-        developer.log("LOGIN API: connection error occurred");
-        return Left(e.response?.statusMessage ?? "Connection error occurred.");
-      }
-      return Left(e.toString());
+    } on Exception catch (e) {
+      throw ErrorHandler.serverOrNetworkException(e);
     } catch (e) {
-      return Left("An Unexpected error occurred.");
+      throw AppException<Internal>(type: Internal.unknown);
     }
   }
 
