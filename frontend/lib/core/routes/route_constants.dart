@@ -3,5 +3,5 @@ class RouteNames {
   static const signupOne = 'signupOne';
   static const signupTwoDoctor = 'signupTwoDoctor';
   static const signupTwoUser = 'signupTwoUser';
-  static const dashboard = 'dashboard';
+  static const main = 'main';
 }

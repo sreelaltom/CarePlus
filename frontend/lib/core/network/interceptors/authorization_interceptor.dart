@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/core/common/app_extensions.dart';
+import 'package:frontend/core/errors/exceptions.dart';
 import 'package:frontend/features/auth/data/auth_remote_data_source.dart';
 import 'package:frontend/features/auth/domain/entities/session.dart';
 import 'package:frontend/core/network/api_urls.dart';
@@ -30,7 +31,7 @@ class AuthorizationInterceptor extends Interceptor {
           response: Response(
             requestOptions: options,
             statusMessage:  "error in authorization interceptor",
-            statusCode: 400,
+            statusCode: Internal.interceptorError.errorCode,
           ),
         ),
       );

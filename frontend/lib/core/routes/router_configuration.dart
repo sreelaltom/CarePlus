@@ -7,7 +7,7 @@ import 'package:frontend/features/auth/presentation/pages/register_page_two.dart
 import 'package:frontend/features/auth/domain/entities/session.dart';
 import 'package:frontend/core/routes/route_constants.dart';
 import 'package:frontend/core/routes/slide_transition_wrapper.dart';
-import 'package:frontend/features/dashboard/presentation/pages/dashboard_page.dart';
+import 'package:frontend/features/main/presentation/pages/main_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:frontend/service_locator.dart';
 import 'dart:developer' as developer;
@@ -42,21 +42,13 @@ class RouterConfiguration {
       ),
       GoRoute(
         name: RouteNames.login,
-        path: '/login',
-        // redirect: (context, state) async {
-        //   final session = await SessionManager().hadActiveSession();
-        //   final userLoggedIn = session != null;
-        //   if (userLoggedIn) {
-        //     return '/dashboard/${session.userID}/${session.accessToken}/${session.refreshToken}';
-        //   }
-        //   return null;
-        // },
+        path: '/login',        
         redirect: (context, state) async{
           await serviceLocator<SessionCubit>().loadSession();
           if (serviceLocator.isRegistered<Session>()) {
-            developer.log("GO ROUTER: Redirecting user to dashboard");
+            developer.log("GO ROUTER: Redirecting user to main ");
             final session = serviceLocator<Session>();
-            return '/dashboard/${session.userID}/${session.accessToken}/${session.refreshToken}';
+            return '/main/${session.userID}/${session.accessToken}/${session.refreshToken}';
           } else {
             developer.log("GO ROUTER: Redirecting user to login");
             return '/login';
@@ -72,10 +64,10 @@ class RouterConfiguration {
             slideTransitionWrapper(page: SignupPageOne()),
       ),
       GoRoute(
-        name: RouteNames.dashboard,
-        path: '/dashboard/:user_id/:access_token/:refresh_token',
+        name: RouteNames.main,
+        path: '/main/:user_id/:access_token/:refresh_token',
         pageBuilder: (context, state) => slideTransitionWrapper(
-          page: DashboardPage(
+          page: MainPage(
             userID: state.pathParameters['user_id']!,
             accessToken: state.pathParameters['access_token']!,
             refreshToken: state.pathParameters['refresh_token']!,

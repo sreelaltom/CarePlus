@@ -6,12 +6,12 @@ import 'package:frontend/core/theme/app_colors.dart';
 import 'package:frontend/features/auth/presentation/widgets/auth_button.dart';
 import 'package:go_router/go_router.dart';
 
-class DashboardPage extends StatelessWidget {
+class MainPage extends StatelessWidget {
   final String userID;
   final String accessToken;
   final String refreshToken;
 
-  const DashboardPage({
+  const MainPage({
     super.key,
     required this.userID,
     required this.accessToken,
@@ -38,19 +38,17 @@ class DashboardPage extends StatelessWidget {
               backgroundColor: AppColors.black,
               foregroundColor: AppColors.teal,
             ),
-            onPressed: () async {
-              // SessionManager().clearSession();
-              await context
-                  .read<SessionCubit>()
-                  .terminateSession(isLogout: true);
-              if (context.mounted) {
-                context.goNamed(RouteNames.login);
-              }
-              // context.read<AuthBloc>().add(SessionExpiredEvent());
-            },
+            onPressed: () => _logoutUser(context),
           ),
         ],
       )),
     );
+  }
+}
+
+void _logoutUser(BuildContext context) async {
+  await context.read<SessionCubit>().terminateSession(isLogout: true);
+  if (context.mounted) {
+    context.goNamed(RouteNames.login);
   }
 }
