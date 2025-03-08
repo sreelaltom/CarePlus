@@ -68,12 +68,12 @@ class LoginPage extends StatelessWidget {
           context.read<AuthBloc>().add(SelectUserAuthEvent());
         } else if (state is AuthSuccess && state.session != null) {
           context.goNamed(
-            RouteNames.main,
-            pathParameters: {
-              'user_id': state.session!.userID.toString(),
-              'access_token': state.session!.accessToken,
-              'refresh_token': state.session!.refreshToken,
-            },
+            RouteNames.history,
+            // pathParameters: {
+            //   'user_id': state.session!.userID.toString(),
+            //   'access_token': state.session!.accessToken,
+            //   'refresh_token': state.session!.refreshToken,
+            // },
           );
           context.read<SessionCubit>().createSession(session: state.session!);
         } else {
