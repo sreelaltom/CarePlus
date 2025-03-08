@@ -1,29 +1,29 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
+import 'package:frontend/bottom_nav/bottom_navigation_page.dart';
+import 'package:frontend/core/routes/route_constants.dart';
+import 'package:frontend/core/routes/slide_transition_wrapper.dart';
+import 'package:frontend/features/checkup/checkups_page.dart';
+import 'package:frontend/features/auth/domain/entities/session.dart';
 import 'package:frontend/features/auth/presentation/bloc/session_cubit/session_cubit.dart';
 // import 'package:frontend/core/config/session_manager.dart';
 import 'package:frontend/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend/features/auth/presentation/pages/register_page_one.dart';
 import 'package:frontend/features/auth/presentation/pages/register_page_two.dart';
-import 'package:frontend/features/auth/domain/entities/session.dart';
-import 'package:frontend/core/routes/route_constants.dart';
-import 'package:frontend/core/routes/slide_transition_wrapper.dart';
+import 'package:frontend/features/chat/chat_page.dart';
 import 'package:frontend/features/history/history_page.dart';
 import 'package:frontend/features/media/media_upload_page.dart';
 import 'package:frontend/features/profile/profile_page.dart';
-import 'package:frontend/features/settings/settings_page.dart';
-import 'package:frontend/features/chat/chat_page.dart';
-import 'package:frontend/bottom_nav/bottom_navigation_page.dart';
-import 'package:go_router/go_router.dart';
 import 'package:frontend/service_locator.dart';
-import 'dart:developer' as developer;
+import 'package:go_router/go_router.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _historyNavigatorKey =
     GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _mediaNavigatorKey =
     GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _chatNavigatorKey =
-    GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> _chatNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _profileNavigatorKey =
     GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _settingsNavigatorKey =
@@ -138,9 +138,9 @@ class RouterConfiguration {
             navigatorKey: _settingsNavigatorKey,
             routes: [
               GoRoute(
-                name: RouteNames.settings,
-                path: '/settings',
-                builder: (context, state) => SettingsPage(),
+                name: RouteNames.checkups,
+                path: '/checkups',
+                builder: (context, state) => CheckupsPage(),
               ),
             ],
           ),

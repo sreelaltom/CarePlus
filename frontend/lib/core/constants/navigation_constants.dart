@@ -28,9 +28,9 @@ abstract class NavigationConstants {
     },
     {
       "index": 4,
-      "label": "Settings",
-      "icon": Icons.settings_outlined,
-      "selected_icon": Icons.settings,
+      "label": "Checkups",
+      "icon": Icons.calendar_month_outlined,
+      "selected_icon": Icons.calendar_month,
     },
   ];
 }

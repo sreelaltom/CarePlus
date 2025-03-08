@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/core/theme/app_colors.dart';
 
 
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+class CheckupsPage extends StatelessWidget {
+  const CheckupsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
