@@ -10,6 +10,10 @@ class AppTheme {
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         fontFamily: 'Montserrat',
         textTheme: AppTextTheme.montSerrat,
+        appBarTheme: AppBarTheme(
+          backgroundColor: AppColors.darkNavy,
+          foregroundColor: AppColors.teal,
+        ),
         inputDecorationTheme: InputDecorationTheme(
           contentPadding: const EdgeInsets.symmetric(
             vertical: 20,
@@ -46,9 +50,9 @@ class AppTheme {
           style: IconButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
-              side: BorderSide(color: AppColors.primary, width: 5),
+              side: BorderSide(color: AppColors.darkNavy, width: 5),
             ),
-            backgroundColor: AppColors.primary,
+            backgroundColor: AppColors.darkNavy,
             foregroundColor: AppColors.teal,
             minimumSize: Size(double.infinity, 55),
           ),
@@ -80,5 +84,25 @@ class AppTheme {
             borderRadius: BorderRadius.circular(10),
           ),
         ),
+        navigationBarTheme: NavigationBarThemeData(
+            // height: 70,
+            shadowColor: AppColors.teal,
+            iconTheme: WidgetStatePropertyAll(
+              IconThemeData(
+                color: AppColors.teal,
+                size: 25,
+              ),
+            ),
+            elevation: 2,
+            backgroundColor: AppColors.darkNavy,
+            indicatorShape:
+                CircleBorder(side: BorderSide(color: AppColors.teal)),
+            indicatorColor: AppColors.teal.withValues(alpha: 0.0),
+            labelTextStyle: WidgetStatePropertyAll(
+              AppTextTheme.montSerrat.bodyMedium!.copyWith(
+                color: AppColors.teal,
+              ),
+            ),
+            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected),
       );
 }

@@ -10,10 +10,14 @@ class LoginUseCase {
     String? registrationID,
     required String password,
   }) async {
-    return await serviceLocator<AuthRepository>().login(
+    final response = await serviceLocator<AuthRepository>().login(
       email: email,
       registrationID: registrationID,
       password: password,
+    );
+    return response.fold(
+      (failure) => Left(failure.message),
+      (userAndSession) => Right(userAndSession),
     );
   }
 }

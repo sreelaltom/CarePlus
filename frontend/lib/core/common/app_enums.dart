@@ -21,3 +21,5 @@ enum AuthFailureType {
 
   const AuthFailureType(this.message);
 }
+
+

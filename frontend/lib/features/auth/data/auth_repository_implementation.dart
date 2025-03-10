@@ -1,4 +1,6 @@
 import 'package:dartz/dartz.dart';
+import 'package:frontend/core/errors/exceptions.dart';
+import 'package:frontend/core/errors/failures.dart';
 import 'package:frontend/features/auth/data/auth_remote_data_source.dart';
 // import 'package:frontend/auth/data/user_model.dart';
 import 'package:frontend/features/auth/domain/auth_repository.dart';
@@ -8,7 +10,7 @@ import 'package:frontend/service_locator.dart';
 
 class AuthRepositoryImplementation implements AuthRepository {
   @override
-  Future<Either<String, User>> register({
+  Future<Either<Failure, User>> register({
     String? email,
     String? registrationId,
     required String username,
@@ -27,17 +29,14 @@ class AuthRepositoryImplementation implements AuthRepository {
         isPatient: isPatient,
         isDoctor: isDoctor,
       );
-      return response.fold(
-        (error) => Left(error),
-        (user) => Right(user),
-      );
-    } catch (e) {
-      return Left(e.toString());
+      return Right(response);
+    } on AppException catch (e) {
+      return Left(Failure.from(e));
     }
   }
 
   @override
-  Future<Either<String, (User, Session)>> login({
+  Future<Either<Failure, (User, Session)>> login({
     String? email,
     String? registrationID,
     required String password,
@@ -48,12 +47,9 @@ class AuthRepositoryImplementation implements AuthRepository {
         registrationID: registrationID,
         password: password,
       );
-      return response.fold(
-        (error) => Left(error),
-        (userAndSession) => Right(userAndSession),
-      );
-    } catch (e) {
-      return Left(e.toString());
+      return Right(response);
+    } on AppException catch (e) {
+      return Left(Failure.from(e));
     }
   }
 }

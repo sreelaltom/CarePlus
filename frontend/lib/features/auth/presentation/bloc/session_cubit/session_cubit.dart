@@ -78,25 +78,11 @@ class SessionCubit extends Cubit<SessionState> {
 void _logSessionStatus() {
   try {
     final session = serviceLocator<Session>();
-    final accessToken = session.accessToken.substring(0,50);
-    final refreshToken = session.refreshToken.substring(0,50);
+    final accessToken = session.accessToken.substring(0, 50);
+    final refreshToken = session.refreshToken.substring(0, 50);
     final userID = session.userID.toString();
     developer.log(
-      // 'session_status : {\n\tuser_id : ${session.userID}\n\taccess_token: ${session.accessToken}\n\trefresh_token: ${session.refreshToken}\n}',
-      // 'session_status : {\n\tuser_id : ' +
-      //     session.userID.toString() +
-      //     '\n\taccess_token: ' +
-      //     session.accessToken.subString(0,20) +
-      //     '\n\trefresh_token: ' +
-      //     session.refreshToken.subString(0,20) +
-      //     '\n}',
-      'session_status : {\n\tuser_id : ' +
-          userID +
-          '\n\taccess_token: ' +
-          accessToken +
-          '\n\trefresh_token: ' +
-          refreshToken +
-          '\n}',
+      'session_status : {\n\tuser_id : $userID\n\taccess_token: $accessToken\n\trefresh_token: $refreshToken\n}',
     );
   } catch (e) {
     developer.log(
