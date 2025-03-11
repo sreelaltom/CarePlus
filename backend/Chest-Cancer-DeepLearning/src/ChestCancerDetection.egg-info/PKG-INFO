@@ -1,0 +1,93 @@
+Metadata-Version: 2.2
+Name: ChestCancerDetection
+Version: 0.0.0
+Summary: A small python package for CNN app
+Home-page: https://github.com/irshadmuhammed/Chest-Cancer-DeepLearning
+Author: irshadmuhammed
+Author-email: irshadmm16@gmail.com
+Project-URL: Bug Tracker, https://github.com/irshadmuhammed/Chest-Cancer-DeepLearning/issues
+License-File: LICENSE
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: home-page
+Dynamic: project-url
+Dynamic: summary
+
+# Chest Cancer Detection using Deep Learning
+
+## Overview
+This project is a deep learning-based Chest Cancer Detection system that takes CT scan images as input and predicts the presence of chest cancer. The model is integrated with MLflow for experiment tracking and DVC (Data Version Control) for managing datasets and pipelines.
+
+## Features
+- **Deep Learning-based Model**: Uses a convolutional neural network (CNN) to classify chest cancer from CT scan images.
+- **MLflow Integration**: Tracks model training, evaluation, and performance metrics.
+- **DVC Pipeline**: Manages dataset versioning and ensures reproducibility.
+- **Streamlit Web Interface**: A user-friendly interface for uploading images and viewing predictions.
+- **Confidence Score**: Displays the model's confidence in its prediction.
+
+## Tech Stack
+- **Frontend**: Streamlit
+- **Backend**: Python (Flask/FastAPI)
+- **Deep Learning**: TensorFlow
+- **Experiment Tracking**: MLflow
+- **Data Management**: DVC
+
+## Demo
+![App Screenshot](./sceenshot.png)
+
+## Installation
+
+### Prerequisites
+Ensure you have the following installed:
+- Python 3.8+
+- pip
+- Virtualenv (optional but recommended)
+
+### Clone the Repository
+```sh
+$ git clone https://github.com/your-repo/chest-cancer-detection.git
+$ cd chest-cancer-detection
+```
+
+### Set Up Virtual Environment (Optional)
+```sh
+$ python -m venv venv
+$ source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+```
+
+### Install Dependencies
+```sh
+$ pip install -r requirements.txt
+```
+
+### Set Up DVC and MLflow
+```sh
+$ dvc init
+$ dvc pull  # Fetch dataset and models
+$ mlflow ui  # Start MLflow UI for tracking experiments
+```
+
+## Usage
+### Running the Application
+```sh
+$ streamlit run app.py
+```
+
+### Uploading an Image
+1. Open the web interface.
+2. Upload a CT scan image.
+3. View the prediction and confidence score.
+
+
+## Pipeline Workflow
+1. **Data Preprocessing**: Load and clean CT scan images.
+2. **Model Training**: Train a deep learning model with CNN architecture.
+3. **Evaluation**: Validate model performance and log results to MLflow.
+4. **Prediction**: Deploy the trained model for inference.
+
+
+
+## License
+This project is licensed under the MIT License.
+
