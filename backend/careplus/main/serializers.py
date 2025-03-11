@@ -2,7 +2,14 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import MedicalFile
 from .cloudinary_helper import upload_file
+import pytesseract
+import pdfplumber  # More efficient than pdf2image
+from PIL import Image
+import io
 
+
+# Set the Tesseract executable path (Only for Windows users)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -40,7 +47,38 @@ class RegisterSerializer(serializers.ModelSerializer):
             phone_number=validated_data.get('phone_number', None),
         )
         return user
+def extract_text_from_file(file):
+    """
+    Extracts text from both PDFs and images.
+    - Uses `pdfplumber` for PDFs
+    - Uses `pytesseract` for image files
+    """
+    extracted_text = ""
 
+    # Get file extension
+    file_extension = file.name.split(".")[-1].lower()
+
+    try:
+        if file_extension in ["jpg", "jpeg", "png", "tiff", "bmp"]:
+            # Process images with OCR
+            image = Image.open(io.BytesIO(file.read()))  # Read image from file
+            extracted_text = pytesseract.image_to_string(image)
+
+        elif file_extension == "pdf":
+            # Process PDFs
+            extracted_text_list = []
+            with pdfplumber.open(file) as pdf:
+                for page in pdf.pages:
+                    text = page.extract_text()
+                    if text:
+                        extracted_text_list.append(text)
+            
+            extracted_text = "\n".join(extracted_text_list) if extracted_text_list else "No text found"
+
+    except Exception as e:
+        extracted_text = f"Error extracting text: {str(e)}"
+
+    return extracted_text
 
 class MedicalFileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,7 +87,12 @@ class MedicalFileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Upload file to Cloudinary and save URL in the model."""
-        file = validated_data.pop("file")  # Get file object
-        cloudinary_url = upload_file(file)  # Upload and get Cloudinary URL
+        file = validated_data.pop("file") 
+        cloudinary_url = upload_file(file)  
+        file.seek(0)  # Reset file pointer before reading again
+
+        # Extract text if it's an image or PDF
+        extracted_text = extract_text_from_file(file)
+        print("Extracted Text:", extracted_text)  # Debugging
         medical_file = MedicalFile.objects.create(cloudinary_url=cloudinary_url, **validated_data)
         return medical_file
