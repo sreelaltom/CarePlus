@@ -1,0 +1,15 @@
+artifact_uri: mlflow-artifacts:/0/039c61cdc9f8455286d0173f98cda88c/artifacts
+end_time: 1740646143307
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 039c61cdc9f8455286d0173f98cda88c
+run_name: shivering-duck-54
+run_uuid: 039c61cdc9f8455286d0173f98cda88c
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1740646128935
+status: 4
+tags: []
+user_id: getir
