@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-abstract class NavigationConstants {
+abstract class UiConstants {
   static const navBarData = [
     {
       "index": 0,
@@ -33,4 +33,5 @@ abstract class NavigationConstants {
       "selected_icon": Icons.calendar_month,
     },
   ];
+  
 }

@@ -8,8 +8,6 @@ import 'package:frontend/core/network/dio_client.dart';
 import 'package:frontend/features/auth/presentation/bloc/session_cubit/session_cubit.dart';
 import 'package:frontend/service_locator.dart';
 
-
-
 class AuthorizationInterceptor extends Interceptor {
   @override
   void onRequest(
@@ -30,7 +28,7 @@ class AuthorizationInterceptor extends Interceptor {
           type: DioExceptionType.unknown,
           response: Response(
             requestOptions: options,
-            statusMessage:  "error in authorization interceptor",
+            statusMessage: "error in authorization interceptor",
             statusCode: Internal.interceptorError.errorCode,
           ),
         ),
@@ -75,6 +73,7 @@ class AuthorizationInterceptor extends Interceptor {
             );
             //return the response.
             handler.resolve(response);
+            return;
           } else {
             //if we do not obtain the new access Token user session is terminated
             serviceLocator<SessionCubit>().terminateSession();
@@ -83,6 +82,7 @@ class AuthorizationInterceptor extends Interceptor {
               handler,
               message: "Cannot obtain access token",
             );
+            return;
           }
         }
       } else {
@@ -91,6 +91,7 @@ class AuthorizationInterceptor extends Interceptor {
           handler,
           message: "Refresh Token Revoked",
         );
+        return;
       }
     } else if (err.response?.statusCode == 409) {
       final interceptedData = {
@@ -101,8 +102,8 @@ class AuthorizationInterceptor extends Interceptor {
           "error": "Credentials already exists."
       };
       err.response?.data = interceptedData;
-    }
     handler.next(err);
+    }
   }
 }
 

@@ -13,7 +13,7 @@ import 'package:frontend/features/auth/presentation/pages/register_page_one.dart
 import 'package:frontend/features/auth/presentation/pages/register_page_two.dart';
 import 'package:frontend/features/chat/chat_page.dart';
 import 'package:frontend/features/history/history_page.dart';
-import 'package:frontend/features/media/media_upload_page.dart';
+import 'package:frontend/features/medical_records/presentation/medical_records_page.dart';
 import 'package:frontend/features/profile/profile_page.dart';
 import 'package:frontend/service_locator.dart';
 import 'package:go_router/go_router.dart';
@@ -62,7 +62,7 @@ class RouterConfiguration {
           await serviceLocator<SessionCubit>().loadSession();
           if (serviceLocator.isRegistered<Session>()) {
             developer.log("GO ROUTER: Redirecting user to main ");
-            final session = serviceLocator<Session>();
+            // final session = serviceLocator<Session>();
             // return '/main/${session.userID}/${session.accessToken}/${session.refreshToken}';
             return '/history';
           } else {
@@ -79,17 +79,6 @@ class RouterConfiguration {
         pageBuilder: (context, state) =>
             slideTransitionWrapper(page: SignupPageOne()),
       ),
-      // GoRoute(
-      //   name: RouteNames.main,
-      //   path: '/main/:user_id/:access_token/:refresh_token',
-      //   pageBuilder: (context, state) => slideTransitionWrapper(
-      //     page: BottomNavigationPage(
-      //       userID: state.pathParameters['user_id']!,
-      //       accessToken: state.pathParameters['access_token']!,
-      //       refreshToken: state.pathParameters['refresh_token']!,
-      //     ),
-      //   ),
-      // ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             BottomNavigationPage(navigationShell: navigationShell),
@@ -108,9 +97,9 @@ class RouterConfiguration {
             navigatorKey: _mediaNavigatorKey,
             routes: [
               GoRoute(
-                name: RouteNames.media,
-                path: '/media',
-                builder: (context, state) => MediaUploadPage(),
+                name: RouteNames.medicalRecords,
+                path: '/medical-records',
+                builder: (context, state) => MedicalRecordsPage(),
               ),
             ],
           ),

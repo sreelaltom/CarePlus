@@ -1,0 +1,14 @@
+{
+  "cSpell.words": [
+    "careplus",
+    "Carepulse",
+    "cupertino",
+    "Pluse",
+    "runserver",
+    "venv"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always"
+  },
+  "postman.settings.dotenv-detection-notification-visibility": false
+}

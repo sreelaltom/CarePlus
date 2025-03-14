@@ -9,7 +9,7 @@ class User {
   final String phone;
 
 
-  User({
+  const User({
     required this.id,
     required this.username,
     this.email,
