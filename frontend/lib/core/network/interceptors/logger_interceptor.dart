@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:frontend/core/common/app_extensions.dart';
 import 'package:logger/logger.dart';
 
 class LoggerInterceptor extends Interceptor {
@@ -19,20 +20,22 @@ class LoggerInterceptor extends Interceptor {
     // super.onRequest(options, handler);
     final requestPath = '${options.baseUrl}${options.path}';
     logger.i('${options.method} request ==> $requestPath');
-    logger.d(
-      'HEADERS: ${options.headers}\n'
-      '''
-        DATA: {
-          email: ${options.data['email']},
-          registration_id: ${options.data['registration_id']},
-          username: ${options.data['username']},
-          password: ${options.data['password']},
-          phone_number: ${options.data['phone_number']},
-          is_doctor: ${options.data['is_doctor']},
-          is_patient: ${options.data['is_patient']},
-        }
-      ''',
-    );
+    switch (options.data.runtimeType) {
+      case FormData _:
+        final request = {};
+        request
+          ..addEntries((options.data as FormData).fields)
+          ..log();
+        break;
+      case Map<String, dynamic> _:
+        (options.data as Map<String, dynamic>).log();
+        break;
+      default:
+        logger.d(
+          'HEADERS: ${options.headers}\n'
+          'DATA: ${options.data}'
+        );
+    }
     handler.next(options);
   }
 
