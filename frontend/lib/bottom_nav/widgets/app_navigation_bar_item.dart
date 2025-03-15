@@ -9,6 +9,7 @@ class AppNavigationBarItem extends StatelessWidget {
   final Widget icon;
   final Widget selectedIcon;
   final Color labelColor;
+  final Color? labelSelectedColor;
   final String label;
   // final ValueChanged<int> onSelected;
   final StatefulNavigationShell navigationShell;
@@ -21,6 +22,7 @@ class AppNavigationBarItem extends StatelessWidget {
     required this.selectedIcon,
     required this.label,
     required this.labelColor,
+    this.labelSelectedColor,
     // required this.onSelected,
     required this.navigationShell,
   });
@@ -58,7 +60,7 @@ class AppNavigationBarItem extends StatelessWidget {
                   return Text(
                     label,
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color: labelColor,
+                          color: labelSelectedColor == null ? labelColor : (state == index ? labelSelectedColor : labelColor),
                           fontWeight: state == index
                               ? FontWeight.bold
                               : FontWeight.normal,

@@ -13,6 +13,8 @@ class AppTheme {
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.darkNavy,
           foregroundColor: AppColors.teal,
+          shadowColor: AppColors.darkNavy,
+          elevation: 0,
         ),
         inputDecorationTheme: InputDecorationTheme(
           contentPadding: const EdgeInsets.symmetric(
@@ -66,8 +68,9 @@ class AppTheme {
               color: AppColors.black,
             ),
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(color: AppColors.primary)),
+              borderRadius: BorderRadius.circular(10),
+              side: BorderSide(color: AppColors.teal),
+            ),
             iconColor: AppColors.primary,
             foregroundColor: AppColors.primary,
             minimumSize: Size(double.infinity, 55),
