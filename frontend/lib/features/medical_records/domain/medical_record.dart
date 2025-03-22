@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:frontend/core/common/app_enums.dart';
 
-class MedicalRecord {
+class MedicalRecord extends Equatable{
   final int id;
   final MedicalRecordType type;
   final String url;
@@ -14,4 +15,7 @@ class MedicalRecord {
     required this.createdAt,
     // required this.fileName,
   });
+  
+  @override
+  List<Object?> get props => [id, type, url, createdAt];
 }

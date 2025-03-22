@@ -8,10 +8,13 @@ import 'package:frontend/features/auth/domain/use_cases/register_use_case.dart';
 import 'package:frontend/features/medical_records/data/medical_record_remote_data_source.dart';
 import 'package:frontend/features/medical_records/data/medical_record_repository_implementation.dart';
 import 'package:frontend/features/medical_records/domain/medical_record_repository.dart';
+import 'package:frontend/features/medical_records/domain/use_case/delete_medical_record_use_case.dart';
 import 'package:frontend/features/medical_records/domain/use_case/get_medical_records_use_case.dart';
 import 'package:frontend/features/medical_records/domain/use_case/upload_medical_record_use_case.dart';
 import 'package:get_it/get_it.dart';
 import 'dart:developer' as developer;
+
+import 'package:image_picker/image_picker.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -95,12 +98,15 @@ abstract class Dependencies {
         ..registerLazySingleton<GetMedicalRecordsUseCase>(
           () => GetMedicalRecordsUseCase(),
         )
+        ..registerLazySingleton<DeleteMedicalRecordUseCase>(
+          () => DeleteMedicalRecordUseCase(),
+        )
         ..registerLazySingleton<MedicalRecordRepository>(
           () => MedicalRecordRepositoryImplementation(),
         )
         ..registerLazySingleton<MedicalRecordRemoteDataSource>(
           () => MedicalRecordRemoteDataSourceImplementation(),
-        );
+        )..registerLazySingleton<ImagePicker>(() => ImagePicker());
       isMedicalRecordRegistered = true;
       developer.log('SERVICE LOCATOR: Medical Record Dependencies initialized');
     }

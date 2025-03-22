@@ -40,6 +40,12 @@ class UploadMedicalRecordFailed extends MedicalRecordsState {
   });
 }
 
+class DeleteMedicalRecordStatus extends MedicalRecordsState {
+  final String status;
+
+  DeleteMedicalRecordStatus({required this.status});
+}
+
 class MedicalRecordsFailed extends MedicalRecordsState {
   final String? error;
 

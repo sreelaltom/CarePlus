@@ -10,4 +10,6 @@ abstract interface class MedicalRecordRepository {
   });
 
   Future<Either<Failure, List<MedicalRecord>>> getAll();
+
+  Future<Either<Failure, String>> delete({required int id});
 }

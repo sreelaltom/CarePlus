@@ -1,22 +1,36 @@
-import 'package:dartz/dartz.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/core/common/app_enums.dart';
-import 'package:frontend/core/common/app_extensions.dart';
+import 'package:frontend/core/common/app_enums.dart' show MedicalRecordType;
 import 'package:frontend/core/theme/app_colors.dart';
-import 'package:frontend/features/medical_records/presentation/bloc/medical_records_bloc.dart';
-import 'package:frontend/features/medical_records/presentation/widgets/file_card.dart';
-import 'package:frontend/features/medical_records/presentation/widgets/file_uploader.dart';
-import 'package:frontend/features/medical_records/presentation/widgets/upload_option.dart';
-import 'dart:developer' as developer;
+import 'package:frontend/features/medical_records/presentation/bloc/file_operations_cubit/file_operations_cubit.dart';
+import 'package:frontend/features/medical_records/presentation/bloc/medical_records_bloc/medical_records_bloc.dart';
 
+import 'package:frontend/features/medical_records/presentation/widgets/category_dropdown.dart';
+import 'package:frontend/features/medical_records/presentation/widgets/dialog_button.dart';
+import 'package:frontend/features/medical_records/presentation/widgets/file_name_field.dart';
+import 'package:frontend/features/medical_records/presentation/widgets/medical_records_list.dart';
+import 'package:frontend/features/medical_records/presentation/widgets/upload_option.dart';
+import 'dart:developer' as developer show log;
 import 'package:go_router/go_router.dart';
 
-class MedicalRecordsPage extends StatelessWidget {
-  late final _fileNameController = TextEditingController();
+class MedicalRecordsPage extends StatefulWidget {
+  const MedicalRecordsPage({super.key});
 
-  MedicalRecordsPage({super.key});
+  @override
+  State<MedicalRecordsPage> createState() => _MedicalRecordsPageState();
+}
+
+class _MedicalRecordsPageState extends State<MedicalRecordsPage> {
+  late final ValueNotifier<MedicalRecordType> _categoryListener;
+  late final TextEditingController _fileNameController;
+
+  @override
+  void initState() {
+    _categoryListener =
+        ValueNotifier<MedicalRecordType>(MedicalRecordType.labResult);
+    _fileNameController = TextEditingController();
+    super.initState();
+  }
 
   void _showUploadOptions(
     BuildContext context, {
@@ -35,8 +49,6 @@ class MedicalRecordsPage extends StatelessWidget {
       backgroundColor: AppColors.primary,
       context: context,
       builder: (bottomSheetContext) {
-        developer.log(
-            "CONTEXT inside showUploadOptions->builder: ${context.hashCode}");
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: Center(
@@ -59,73 +71,240 @@ class MedicalRecordsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    developer
-        .log("CONTEXT inside build(MedicalRecordsPage) : ${context.hashCode}");
-    return BlocListener<MedicalRecordsBloc, MedicalRecordsState>(
-      listenWhen: (previous, current) => previous != current,
+    final sHeight = MediaQuery.of(context).size.height;
+    return BlocListener<FileOperationsCubit, FileOperationState>(
+      listenWhen: (previous, current) =>
+          previous != current &&
+          [
+            UploadSuccess,
+            UploadFailure,
+            UploadConfirmation,
+            DeleteSuccess,
+            DeleteRequested,
+            DeleteFailure
+          ].contains(current.runtimeType),
       listener: (context, state) {
-        if (state is UploadMedicalRecordFailed ||
-            state is UploadMedicalRecordSuccess) {
-          final message = state is UploadMedicalRecordSuccess
-              ? "File uploaded successfully"
-              : "Upload Failed!";
-          ScaffoldMessenger.of(context)
-            ..clearSnackBars()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(message),
-              ),
-            );
-          context.read<MedicalRecordsBloc>().add(
-                GetAllMedicalRecordsEvent(
-                  previousMedicalRecords: state is UploadMedicalRecordFailed
-                      ? state.previouslyLoadedRecords
-                      : null,
-                ),
-              );
-        } else if (state is UploadMedicalRecordConfirmation) {
-          _fileNameController.text = state.fileName;
-          showDialog(
-            context: context,
-            builder: (dialogContext) {
-              return AlertDialog.adaptive(
-                title: Text(
-                  "Upload File",
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(color: AppColors.white),
-                ),
-                content: Column(
-                  children: [
-                    TextField(controller: _fileNameController),
-                  ],
-                ),
-                actions: [
-                  OutlinedButton(
-                    onPressed: () => dialogContext.pop(),
-                    child: const Text("Cancel"),
+        switch (state) {
+          case UploadConfirmation _:
+            showDialog(
+              context: context,
+              builder: (dialogContext) {
+                return AlertDialog(
+                  backgroundColor: AppColors.darkNavy,
+                  title: Text(
+                    "Upload File",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge!
+                        .copyWith(color: AppColors.white),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<MedicalRecordsBloc>().add(
-                            UploadMedicalRecordEvent(
-                              fileName: _fileNameController.text,
+                  content: ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: sHeight * 0.35),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 16,
+                      children: [
+                        FileNameField(
+                          fileName: state.fileName,
+                          controller: _fileNameController
+                            ..text = state.fileName,
+                        ),
+                        CategoryDropdown(categoryNotifier: _categoryListener),
+                      ],
+                    ),
+                  ),
+                  actions: [
+                    UploadDialogButton(
+                      onPressed: () {
+                        context.read<FileOperationsCubit>().reset();
+                        dialogContext.pop();
+                      },
+                      isActionProceed: false,
+                      label: "Cancel",
+                    ),
+                    UploadDialogButton(
+                      onPressed: () {
+                        context.read<FileOperationsCubit>().uploadFile(
                               filePath: state.filePath,
+                              fileName: _fileNameController.text.isNotEmpty
+                                  ? _fileNameController.text.trim()
+                                  : state.fileName,
                               type: MedicalRecordType.labResult,
-                            ),
-                          );
-                      dialogContext.pop();
-                    },
-                    child: const Text("Upload"),
-                  ),
-                ],
+                            );
+                        dialogContext.pop();
+                      },
+                      label: "Upload",
+                    ),
+                  ],
+                );
+              },
+            );
+            break;
+          case UploadSuccess _:
+            context
+                .read<MedicalRecordsBloc>()
+                .add(AddMedicalRecordEvent(newRecord: state.medicalRecord));
+          case UploadFailure _:
+            ScaffoldMessenger.of(context)
+              ..clearSnackBars()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(state is UploadSuccess
+                      ? "File uploaded successfully"
+                      : "Upload failed!"),
+                ),
               );
-            },
-          );
+            break;
+          case DeleteRequested _:
+            showDialog(
+              context: context,
+              builder: (dialogContext) {
+                return AlertDialog(
+                  backgroundColor: AppColors.darkNavy,
+                  title: Text(
+                    "Delete File",
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge!
+                        .copyWith(color: AppColors.white),
+                  ),
+                  content: Text(
+                    "Are you sure you want to delete ${state.record.id}?",
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(color: AppColors.white),
+                  ),
+                  actions: [
+                    UploadDialogButton(
+                      onPressed: () {
+                        context.read<FileOperationsCubit>().reset();
+                        dialogContext.pop();
+                      },
+                      label: "Cancel",
+                      isActionProceed: false,
+                    ),
+                    UploadDialogButton(
+                      onPressed: () {
+                        context
+                            .read<FileOperationsCubit>()
+                            .deleteFile(record: state.record);
+                        dialogContext.pop();
+                      },
+                      label: "Yes",
+                    ),
+                  ],
+                );
+              },
+            );
+          case DeleteSuccess _:
+            context.read<MedicalRecordsBloc>().add(
+                  RemoveMedicalRecordEvent(fileId: state.fileId),
+                );
+            ScaffoldMessenger.of(context)
+              ..clearSnackBars()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text("${state.fileName} deleted successfully"),
+                ),
+              );
+            break;
+          case DeleteFailure _:
+            ScaffoldMessenger.of(context)
+              ..clearSnackBars()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(state.error),
+                ),
+              );
+            break;
+          default:
+            ScaffoldMessenger.of(context)
+              ..clearSnackBars()
+              ..showSnackBar(
+                SnackBar(
+                  content: const Text("Unhandled state in listener"),
+                ),
+              );
         }
       },
       child: Scaffold(
+        body: SizedBox.expand(
+          child: BlocBuilder<MedicalRecordsBloc, MedicalRecordsState>(
+            buildWhen: (previous, current) =>
+                (previous != current) ||
+                (previous is MedicalRecordsLoaded &&
+                    current is MedicalRecordsLoaded &&
+                    previous.medicalRecords != current.medicalRecords),
+            builder: (context, state) {
+              switch (state) {
+                case MedicalRecordsInitial _:
+                case MedicalRecordsLoading _:
+                  return const Center(child: CircularProgressIndicator());
+                case MedicalRecordsLoaded _:
+                  return MedicalRecordsList(
+                    medicalRecords: state.medicalRecords,
+                  );
+                case MedicalRecordsFailed _:
+                  return Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      spacing: 16,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.8,
+                          child: Text(
+                            state.error ??
+                                "An error occurred while fetching file",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(color: AppColors.white),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => context
+                              .read<MedicalRecordsBloc>()
+                              .add(GetAllMedicalRecordsEvent()),
+                          style: Theme.of(context)
+                              .elevatedButtonTheme
+                              .style!
+                              .copyWith(
+                                backgroundColor: WidgetStatePropertyAll(
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .primaryContainer,
+                                ),
+                                shape: const WidgetStatePropertyAll(
+                                  StadiumBorder(),
+                                ),
+                                padding: const WidgetStatePropertyAll(
+                                  EdgeInsets.all(4),
+                                ),
+                                minimumSize:
+                                    const WidgetStatePropertyAll(Size(100, 40)),
+                              ),
+                          child: Text(
+                            "Try Again",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall!
+                                .copyWith(color: AppColors.primary),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                default:
+                  return const SizedBox();
+              }
+            },
+          ),
+        ),
         floatingActionButton: FloatingActionButton.extended(
           icon: const Icon(Icons.add),
           onPressed: () {
@@ -134,7 +313,10 @@ class MedicalRecordsPage extends StatelessWidget {
               height: 130,
               options: [
                 UploadOption(
-                  onSelected: () {},
+                  onSelected: () {
+                    context.read<FileOperationsCubit>().captureImage();
+                    context.pop();
+                  },
                   label: "Camera",
                   icon: const Icon(
                     Icons.camera_alt_outlined,
@@ -143,16 +325,7 @@ class MedicalRecordsPage extends StatelessWidget {
                 ),
                 UploadOption(
                   onSelected: () {
-                    context.read<MedicalRecordsBloc>().add(
-                          SelectMedicalRecordEvent(
-                              loadedMedicalRecords: context
-                                      .read<MedicalRecordsBloc>()
-                                      .state is MedicalRecordsLoaded
-                                  ? (context.read<MedicalRecordsBloc>().state
-                                          as MedicalRecordsLoaded)
-                                      .medicalRecords
-                                  : null),
-                        );
+                    context.read<FileOperationsCubit>().selectFile();
                     context.pop();
                   },
                   label: "Upload",
@@ -169,13 +342,11 @@ class MedicalRecordsPage extends StatelessWidget {
       ),
     );
   }
-}
 
-// final List<Color> _colors = [
-//   Color(0xFF39FF14),
-//   Color(0xFFC7EA46),
-//   Color(0xFF007FFF),
-//   Color(0xFFFF0693),
-//   Color(0xFFFFEA00),
-//   Color(0xFFFF6700),
-// ];
+  @override
+  void dispose() {
+    _categoryListener.dispose();
+    _fileNameController.dispose();
+    super.dispose();
+  }
+}

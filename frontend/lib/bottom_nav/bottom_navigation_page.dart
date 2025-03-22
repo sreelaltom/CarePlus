@@ -4,7 +4,8 @@ import 'package:frontend/bottom_nav/navigation_cubit.dart';
 import 'package:frontend/bottom_nav/widgets/app_navigation_bar.dart';
 import 'package:frontend/bottom_nav/widgets/app_drawer.dart';
 import 'package:frontend/core/theme/app_colors.dart';
-import 'package:frontend/features/medical_records/presentation/bloc/medical_records_bloc.dart';
+import 'package:frontend/features/medical_records/presentation/bloc/file_operations_cubit/file_operations_cubit.dart';
+import 'package:frontend/features/medical_records/presentation/bloc/medical_records_bloc/medical_records_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class BottomNavigationPage extends StatelessWidget {
@@ -24,7 +25,10 @@ class BottomNavigationPage extends StatelessWidget {
               NavigationCubit()..navigateTo(navigationShell.currentIndex),
         ),
         BlocProvider(
-          create: (_) => MedicalRecordsBloc(),
+          create: (_) => MedicalRecordsBloc()..add(GetAllMedicalRecordsEvent()),
+        ),
+        BlocProvider(
+          create: (_) => FileOperationsCubit(),
         ),
       ],
       child: Scaffold(
