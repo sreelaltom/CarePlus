@@ -28,7 +28,20 @@ class MedicalRecordRepositoryImplementation implements MedicalRecordRepository {
     try {
       final medicalRecords =
           await serviceLocator<MedicalRecordRemoteDataSource>().getAll();
+
       return Right(medicalRecords);
+    } on AppException catch (e) {
+      return Left(Failure.from(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> delete({required int id}) async {
+    try {
+      final message =
+          await serviceLocator<MedicalRecordRemoteDataSource>().delete(id: id);
+
+      return Right(message);
     } on AppException catch (e) {
       return Left(Failure.from(e));
     }

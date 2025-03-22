@@ -24,7 +24,8 @@ enum AuthFailureType {
 
 enum MedicalRecordType {
   labResult(apiValue: "lab_result", dropdownValue: 'Lab result'),
-  prescription(apiValue: "prescription", dropdownValue: 'Prescription');
+  prescription(apiValue: "prescription", dropdownValue: 'Prescription'),
+  chestCancerReport(apiValue: "chest_cancer_report", dropdownValue: 'Chest Cancer Report');
 
   final String apiValue;
   final String dropdownValue;
@@ -32,7 +33,10 @@ enum MedicalRecordType {
   const MedicalRecordType({
     required this.apiValue,
     required this.dropdownValue,
-  });
+  });  
+}
 
-  
+enum FileSource {
+  camera,
+  device,
 }

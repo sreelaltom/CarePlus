@@ -14,7 +14,7 @@ class MedicalRecordModel extends MedicalRecord {
 
   factory MedicalRecordModel.fromMap(Map<String, dynamic> map) =>
       MedicalRecordModel(
-        id: int.tryParse(map['id'])!,
+        id: map['id'],
         type: map['file_type'].toString().toMedicalRecordType!,
         url: map['cloudinary_url']!,
         createdAt: DateTime.parse(map['uploaded_at']) ,

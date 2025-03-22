@@ -11,4 +11,5 @@ abstract class ApiUrls {
   static const refreshToken = '/token/refresh/';
   static const uploadMedicalRecord = '/upload/';
   static const getMedicalRecords = '/files/';
+  static String deleteMedicalRecord(int fileId) => '/files/$fileId/delete/';
 }

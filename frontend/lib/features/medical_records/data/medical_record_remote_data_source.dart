@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:dio/dio.dart';
 import 'package:frontend/core/common/app_enums.dart';
 import 'package:frontend/core/errors/error_handler.dart';
@@ -5,6 +7,7 @@ import 'package:frontend/core/errors/exceptions.dart';
 import 'package:frontend/core/network/api_urls.dart';
 import 'package:frontend/core/network/dio_client.dart';
 import 'package:frontend/features/medical_records/data/medical_record_model.dart';
+import 'dart:developer' as developer;
 
 abstract interface class MedicalRecordRemoteDataSource {
   Future<MedicalRecordModel> upload({
@@ -13,6 +16,8 @@ abstract interface class MedicalRecordRemoteDataSource {
   });
 
   Future<List<MedicalRecordModel>> getAll();
+
+  Future<String> delete({required int id});
 }
 
 class MedicalRecordRemoteDataSourceImplementation
@@ -53,12 +58,43 @@ class MedicalRecordRemoteDataSourceImplementation
     final client = DioClient();
     try {
       final response = await client.get(ApiUrls.getMedicalRecords);
-      final medicalRecords = response.data as List<dynamic>;
-      return medicalRecords.map((medicalRecord) => MedicalRecordModel.fromMap(medicalRecord)).toList();
-    } on AppException catch (e) {
+      final body = response.data as List<dynamic>;
+      final medicalRecords = await Isolate.run(
+        () {
+          final result = body
+              .map((medicalRecordMap) =>
+                  MedicalRecordModel.fromMap(medicalRecordMap))
+              .toList();
+          result.sort((rec1, rec2) => rec2.createdAt.compareTo(rec1.createdAt));
+          return result;
+        },
+        debugName: "Medical Records Model Mapping Isolate",
+      );
+      return medicalRecords;
+    } on Exception catch (e) {
       throw ErrorHandler.serverOrNetworkException(e);
     } catch (e) {
+      developer.log(e.toString());
       throw AppException<Internal>(type: Internal.unknown);
+    }
+  }
+
+  @override
+  Future<String> delete({required int id}) async {
+    final client = DioClient();
+    try {
+      final response = await client.delete(ApiUrls.deleteMedicalRecord(id));
+      // final body = response.data as Map<String, String>;
+      switch (response.statusCode) {
+        case 204:
+          return "File Deleted Successfully";
+        default:
+          throw AppException(type: Internal.unknown);
+      }
+    } on Exception catch (e) {
+      throw ErrorHandler.serverOrNetworkException(e);
+    } catch (e) {
+      throw AppException(type: Internal.unknown);
     }
   }
 }

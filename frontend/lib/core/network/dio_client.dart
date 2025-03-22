@@ -100,7 +100,7 @@ class DioClient {
     CancelToken? cancelToken,
   }) async {
     try {
-      final Response response = await _dio.get(
+      final Response response = await _dio.delete(
         url,
         queryParameters: queryParameters,
         data: data,
