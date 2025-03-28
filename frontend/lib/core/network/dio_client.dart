@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:frontend/core/network/api_urls.dart';
 import 'package:frontend/core/network/interceptors/logger_interceptor.dart';
 import 'package:frontend/core/network/interceptors/authorization_interceptor.dart';
-// import 'package:frontend/core/network/interceptors/connectivity_interceptor.dart';
+import 'package:frontend/core/network/interceptors/connectivity_interceptor.dart';
 
 class DioClient {
   late final Dio _dio;
@@ -19,7 +19,7 @@ class DioClient {
           ),
         )..interceptors.addAll([
             LoggerInterceptor(),
-            // ConnectivityInterceptor(),
+            ConnectivityInterceptor(),
             AuthorizationInterceptor(),
           ]);
 
@@ -100,7 +100,7 @@ class DioClient {
     CancelToken? cancelToken,
   }) async {
     try {
-      final Response response = await _dio.get(
+      final Response response = await _dio.delete(
         url,
         queryParameters: queryParameters,
         data: data,

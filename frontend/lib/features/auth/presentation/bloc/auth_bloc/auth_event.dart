@@ -1,10 +1,16 @@
 part of 'auth_bloc.dart';
 
-abstract class AuthEvent {}
+abstract class AuthEvent extends Equatable {}
 
-class SelectUserAuthEvent extends AuthEvent {}
+class SelectUserAuthEvent extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
 
-class SelectDoctorAuthEvent extends AuthEvent {}
+class SelectDoctorAuthEvent extends AuthEvent {
+  @override
+  List<Object?> get props => [];
+}
 
 class LoginEvent extends AuthEvent {
   final bool isPatient;
@@ -20,6 +26,9 @@ class LoginEvent extends AuthEvent {
     required this.registrationId,
     required this.password,
   });
+  
+  @override
+  List<Object?> get props => [isPatient, isDoctor, email, registrationId, password];
 }
 
 class RegisterEvent extends AuthEvent {
@@ -40,12 +49,18 @@ class RegisterEvent extends AuthEvent {
     required this.password,
     required this.phone,
   });
+  
+  @override
+  List<Object?> get props => [name, isPatient, isDoctor, email, registrationId, password, phone];
 }
 
 class LogoutEvent extends AuthEvent {
   final BuildContext context;
 
   LogoutEvent({required this.context});
+  
+  @override
+  List<Object?> get props => [context];
 }
 
-class SessionExpiredEvent extends AuthEvent {}
+

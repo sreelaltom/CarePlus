@@ -205,3 +205,33 @@
 
 Let me know if you need more modifications! 🚀
 
+
+
+######Chest cancer requist
+    url/predict
+   
+    {
+        "file": "<UPLOAD IMAGE FILE>",
+        "model_type": "chest_cancer"
+    }
+
+#Response success
+    {
+    "model": "chest_cancer",
+    "prediction": "Normal",
+    "confidence": 0.9876
+}
+
+#Response Error
+    #invalid model
+    {
+    "error": "Invalid model type. Choose from chest_cancer, brain_tumor, kidney_stone"
+    }
+
+    #processing error
+    {
+    "error": "Error loading image: cannot identify image file"
+    }
+
+
+

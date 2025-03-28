@@ -14,8 +14,8 @@ import cloudinary.uploader
 import cloudinary.api
 from pathlib import Path
 import os
-import json
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -156,7 +156,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
-from datetime import timedelta
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=2),  # Increase token lifetime

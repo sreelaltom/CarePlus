@@ -8,8 +8,6 @@ from PIL import Image
 import io
 
 
-# Set the Tesseract executable path (Only for Windows users)
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):

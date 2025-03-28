@@ -22,4 +22,21 @@ enum AuthFailureType {
   const AuthFailureType(this.message);
 }
 
+enum MedicalRecordType {
+  labResult(apiValue: "lab_result", dropdownValue: 'Lab result'),
+  prescription(apiValue: "prescription", dropdownValue: 'Prescription'),
+  chestCancerReport(apiValue: "chest_cancer_report", dropdownValue: 'Chest Cancer Report');
 
+  final String apiValue;
+  final String dropdownValue;
+
+  const MedicalRecordType({
+    required this.apiValue,
+    required this.dropdownValue,
+  });  
+}
+
+enum FileSource {
+  camera,
+  device,
+}
