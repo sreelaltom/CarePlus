@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
+from rest_framework import generics, permissions,status
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import MedicalFile
+from .models import MedicalFile,MedicalReport,Investigation
 from .serializers import MedicalFileSerializer, RegisterSerializer
 from .cloudinary_helper import delete_file
 from django.contrib.auth import authenticate, get_user_model
@@ -98,11 +98,42 @@ class DeleteMedicalFileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, file_id):
-        """Delete a medical file if it belongs to the authenticated user."""
+        """Delete a medical file and its related data if it belongs to the authenticated user."""
         try:
             medical_file = MedicalFile.objects.get(id=file_id, user=request.user)
-            delete_file(medical_file.cloudinary_url)  # Delete from Cloudinary
-            medical_file.delete()  # Delete from DB
-            return Response({"message": "File deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+            
+            # Delete associated medical reports and investigations
+            MedicalReport.objects.filter(medical_file=medical_file).delete()
+            Investigation.objects.filter(medical_file=medical_file).delete()
+
+            # Delete file from Cloudinary
+            delete_file(medical_file.cloudinary_url)
+            
+            # Delete the medical file entry from DB
+            medical_file.delete()
+
+            return Response({"message": "File and associated data deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
         except MedicalFile.DoesNotExist:
             return Response({"error": "File not found or unauthorized."}, status=status.HTTP_404_NOT_FOUND)
+class UserMedicalFilesView(generics.ListAPIView):
+    """API to fetch all medical files uploaded by the logged-in user."""
+    serializer_class = MedicalFileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Return medical files only belonging to the logged-in user."""
+        return MedicalFile.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        """Customize response to return only extracted structured text."""
+        queryset = self.get_queryset()
+        data = [
+            {
+                "file_id": file.id,
+                "file_name": file.file.name,
+                "uploaded_at": file.uploaded_at,
+                "structured_text": file.structured_text
+            }
+            for file in queryset
+        ]
+        return Response(data)

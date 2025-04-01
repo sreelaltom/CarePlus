@@ -21,9 +21,9 @@ load_dotenv()
 
 
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+    "CLOUD_NAME": 'dkcqaecwy',
+    "API_KEY": '892438294866384',
+    "API_SECRET": 'ti95JPTiNMHwHI8JPhmu0oliozU',
 }
 
 cloudinary.config(
@@ -98,10 +98,15 @@ WSGI_APPLICATION = 'careplus.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'carepulse',
+        'USER': 'postgres',
+        'PASSWORD': 'sherly',
+        'HOST': 'localhost',  # or your database server address
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation

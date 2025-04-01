@@ -15,7 +15,18 @@ class MedicalFile(models.Model):
     cloudinary_url = models.URLField(blank=True, null=True)  # Store Cloudinary URL
     file_type = models.CharField(max_length=20, choices=[("prescription", "Prescription"), ("lab_result", "Lab Result")])
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    structured_text = models.JSONField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.file_type} - {self.uploaded_at}"
+        return f"{self.user.username} - {self.file_type} - {self.uplaoaded_at}"
 
+class MedicalReport(models.Model):
+    medical_file = models.ForeignKey(MedicalFile, on_delete=models.CASCADE, related_name="reports")
+    report_text = models.TextField()
+
+class Investigation(models.Model):
+    medical_file = models.ForeignKey(MedicalFile, on_delete=models.CASCADE, related_name="investigations")
+    test_name = models.CharField(max_length=255)
+    observed_value = models.CharField(max_length=255)
+    units = models.CharField(max_length=50)
+    reference_range = models.CharField(max_length=255)
