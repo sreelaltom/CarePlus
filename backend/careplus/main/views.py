@@ -1,4 +1,5 @@
 import os
+import io   
 import numpy as np
 from PIL import Image
 from django.conf import settings
@@ -6,6 +7,17 @@ from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views import View
+import numpy as np
+import os
+from django.conf import settings
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+import cloudinary.uploader
+import logging
 from rest_framework import generics, permissions, status
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
@@ -224,65 +236,71 @@ class DropDown(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+logger = logging.getLogger(__name__)
 
+# Define base directory and model path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
 MODEL_PATH = os.path.join(BASE_DIR, "model.h5")
 print(MODEL_PATH)
 model = load_model(MODEL_PATH)
-def predict_cancer(img_path):
-    """Predicts cancer from a given image path using the loaded model."""
+# Ensure the model exists before loading
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(f"Model file not found: {MODEL_PATH}")
+
+# Load the model once during initialization to avoid reloading for every request
+model = load_model(MODEL_PATH)
+
+
+def predict_cancer_from_memory(file: InMemoryUploadedFile):
+    """Predicts cancer from an uploaded image file without saving it locally."""
     try:
-        img = image.load_img(img_path, target_size=(224, 224))
-        img_array = image.img_to_array(img) / 255.0
+        file_stream = io.BytesIO(file.read())  # Convert InMemoryUploadedFile to file-like object
+        img = image.load_img(file_stream, target_size=(224, 224))
+        img_array = image.img_to_array(img) / 255.0  # Normalize image
         img_array = np.expand_dims(img_array, axis=0)
 
         prediction_probs = model.predict(img_array)
         confidence_score = float(prediction_probs[0][0])
-
         prediction_label = "Normal" if confidence_score > 0.5 else "Adenocarcinoma Cancer"
 
         return {"prediction": prediction_label, "confidence": round(confidence_score, 4)}
 
     except Exception as e:
+        logger.error(f"Prediction error: {str(e)}")
         return {"error": str(e)}
 
+
 class CancerPredictionView(APIView):
-    """API for predicting chest cancer from medical images."""
+    """API for predicting cancer from uploaded images without saving locally."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         file = request.FILES.get("file")
         if not file:
-            return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "No file uploaded"}, status=400)
 
-        print(f"Received file: {file.name}, Size: {file.size}")
-
-        # Save the image temporarily
-        file_path = default_storage.save(f"uploads/{file.name}", file)
-        full_file_path = os.path.join(settings.MEDIA_ROOT, file_path)
-
-        # Predict cancer
-        result = predict_cancer(full_file_path)
+        logger.info(f"Received file: {file.name}, Size: {file.size} bytes")
+        result = predict_cancer_from_memory(file)
 
         if "error" in result:
-            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(result, status=500)
 
-        # Reset file pointer before uploading
+        # Reset file pointer before uploading to Cloudinary
         file.seek(0)
 
-        # Upload to Cloudinary with user metadata
+        # Upload to Cloudinary
         try:
             cloudinary_response = cloudinary.uploader.upload(
                 file, folder="chest_cancer_predictions", public_id=request.user.email
             )
-        except cloudinary.exceptions.Error as e:
-            return Response({"error": f"Cloudinary upload failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            image_url = cloudinary_response.get("secure_url", "")
+        except Exception as e:
+            logger.error(f"Cloudinary upload failed: {str(e)}")
+            return Response({"error": f"Cloudinary upload failed: {str(e)}"}, status=500)
 
-        # Save the prediction in DB
+        # Save prediction to database
         prediction = CancerPrediction.objects.create(
-            user=request.user,
-            image_url=cloudinary_response["secure_url"],
-            prediction=result["prediction"]
+            user=request.user, image_url=image_url, prediction=result["prediction"]
         )
 
         return Response({
@@ -290,8 +308,9 @@ class CancerPredictionView(APIView):
             "user": request.user.email,
             "image_url": prediction.image_url,
             "prediction": result["prediction"],
+            "confidence": result["confidence"],
             "uploaded_at": prediction.uploaded_at
-        }, status=status.HTTP_200_OK)
+        }, status=200)
 
 class UserPredictionsView(APIView):
     """API to retrieve all cancer predictions made by the authenticated user."""
