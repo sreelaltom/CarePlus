@@ -1,12 +1,34 @@
-from rest_framework.views import APIView
-from rest_framework import generics, permissions,status
-from rest_framework.response import Response
+import os
+import numpy as np
+from PIL import Image
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views import View
+from rest_framework import generics, permissions, status
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
-from .models import MedicalFile,MedicalReport,Investigation
-from .serializers import MedicalFileSerializer, RegisterSerializer
-from .cloudinary_helper import delete_file
-from django.contrib.auth import authenticate, get_user_model
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+import cloudinary.uploader
+from cloudinary.uploader import upload
+from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+from django.views import View
+from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+from .models import CancerPrediction
+
+from .models import MedicalFile, MedicalReport, Investigation, CancerPrediction
+from .serializers import MedicalFileSerializer, RegisterSerializer, CancerPredictionSerializer
+from .cloudinary_helper import delete_file
+
+
 
 User = get_user_model()
 
@@ -177,3 +199,128 @@ class FilterMedicalFilesView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class DropDown(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Fetch all unique test names from the user's medical files."""
+        try:
+            # Get all medical files for the user
+            medical_files = MedicalFile.objects.filter(user=request.user)
+
+            # Extract unique test names
+            unique_test_names = set()
+            for file in medical_files:
+                structured_text = file.structured_text or {}  # Ensure it's a dictionary
+                investigations = structured_text.get("investigations", [])
+
+                for test in investigations:
+                    if isinstance(test, dict) and "test_name" in test:
+                        unique_test_names.add(test["test_name"])
+
+            return Response(list(unique_test_names), status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__)) 
+MODEL_PATH = os.path.join(BASE_DIR, "model.h5")
+print(MODEL_PATH)
+model = load_model(MODEL_PATH)
+def predict_cancer(img_path):
+    """Predicts cancer from a given image path using the loaded model."""
+    try:
+        img = image.load_img(img_path, target_size=(224, 224))
+        img_array = image.img_to_array(img) / 255.0
+        img_array = np.expand_dims(img_array, axis=0)
+
+        prediction_probs = model.predict(img_array)
+        confidence_score = float(prediction_probs[0][0])
+
+        prediction_label = "Normal" if confidence_score > 0.5 else "Adenocarcinoma Cancer"
+
+        return {"prediction": prediction_label, "confidence": round(confidence_score, 4)}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+class CancerPredictionView(APIView):
+    """API for predicting chest cancer from medical images."""
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        file = request.FILES.get("file")
+        if not file:
+            return Response({"error": "No file uploaded"}, status=status.HTTP_400_BAD_REQUEST)
+
+        print(f"Received file: {file.name}, Size: {file.size}")
+
+        # Save the image temporarily
+        file_path = default_storage.save(f"uploads/{file.name}", file)
+        full_file_path = os.path.join(settings.MEDIA_ROOT, file_path)
+
+        # Predict cancer
+        result = predict_cancer(full_file_path)
+
+        if "error" in result:
+            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Reset file pointer before uploading
+        file.seek(0)
+
+        # Upload to Cloudinary with user metadata
+        try:
+            cloudinary_response = cloudinary.uploader.upload(
+                file, folder="chest_cancer_predictions", public_id=request.user.email
+            )
+        except cloudinary.exceptions.Error as e:
+            return Response({"error": f"Cloudinary upload failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Save the prediction in DB
+        prediction = CancerPrediction.objects.create(
+            user=request.user,
+            image_url=cloudinary_response["secure_url"],
+            prediction=result["prediction"]
+        )
+
+        return Response({
+            "id": prediction.id,
+            "user": request.user.email,
+            "image_url": prediction.image_url,
+            "prediction": result["prediction"],
+            "uploaded_at": prediction.uploaded_at
+        }, status=status.HTTP_200_OK)
+
+class UserPredictionsView(APIView):
+    """API to retrieve all cancer predictions made by the authenticated user."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        predictions = CancerPrediction.objects.filter(user=request.user)
+        serializer = CancerPredictionSerializer(predictions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
+
+class DeleteCancerImageView(APIView):
+    """API to delete a cancer image from Cloudinary and remove the DB record."""
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk, *args, **kwargs):
+        # Get the image object
+        image = get_object_or_404(CancerPrediction, pk=pk, user=request.user)
+
+        # Extract Cloudinary public ID from the image URL
+        try:
+            public_id = image.image_url.split("/")[-1].split(".")[0]  # Extract file name without extension
+            cloudinary.uploader.destroy(f"chest_cancer_predictions/{public_id}")  # Delete from Cloudinary
+        except Exception as e:
+            return Response({"error": f"Cloudinary deletion failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # Delete the record from DB
+        image.delete()
+        
+        return Response({'message': 'Cancer image deleted successfully'}, status=status.HTTP_200_OK)
