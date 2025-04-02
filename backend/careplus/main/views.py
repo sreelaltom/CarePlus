@@ -137,3 +137,43 @@ class UserMedicalFilesView(generics.ListAPIView):
             for file in queryset
         ]
         return Response(data)
+class FilterMedicalFilesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Fetch medical files based on query parameters: parameter, from, to."""
+        parameter = request.GET.get("parameter")
+        from_date = request.GET.get("from")
+        to_date = request.GET.get("to")
+
+        if not from_date or not to_date:
+            return Response({"error": "Both 'from' and 'to' dates are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            filtered_files = MedicalFile.objects.filter(
+                user=request.user,
+                uploaded_at__date__gte=from_date,
+                uploaded_at__date__lte=to_date
+            )
+
+            if parameter:
+                filtered_files = filtered_files.filter(structured_text__icontains=parameter)
+
+            # Transform data to required format
+            response_data = []
+            for file in filtered_files:
+                uploaded_date = file.uploaded_at.date().isoformat()  # Extract date only
+                for test in file.structured_text.get("investigations", []):
+                    response_data.append({
+                        "value": test["observed_value"],
+                        "date": uploaded_date,
+                        "test_name": test["test_name"],
+                    })
+            k= []
+            for respon in response_data:
+                if respon["test_name"]==parameter:
+                    k.append(respon)
+            return Response(k, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

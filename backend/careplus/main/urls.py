@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, LoginView, TokenRefreshView, UploadMedicalFileView, GetMedicalFilesView, DeleteMedicalFileView,UserMedicalFilesView
+from .views import RegisterView, LoginView, TokenRefreshView, UploadMedicalFileView, GetMedicalFilesView, DeleteMedicalFileView,UserMedicalFilesView,FilterMedicalFilesView
 from rest_framework_simplejwt.views import (TokenObtainPairView,)
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path('files/', GetMedicalFilesView.as_view(), name='get-files'),
     path('files/<int:file_id>/delete/', DeleteMedicalFileView.as_view(), name='delete-file'),
      path('medical-files/', UserMedicalFilesView.as_view(), name='user-medical-files'),
+      path('medical-files/filter/', FilterMedicalFilesView.as_view(), name='filter-medical-files'),  # ✅ NEW API ENDPOINT
 ]
