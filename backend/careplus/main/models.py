@@ -30,3 +30,13 @@ class Investigation(models.Model):
     observed_value = models.CharField(max_length=255)
     units = models.CharField(max_length=50)
     reference_range = models.CharField(max_length=255)
+
+
+class CancerPrediction(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="cancer_predictions")  # Fixed related_name
+    image_url = models.URLField()
+    prediction = models.CharField(max_length=100)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.email} - {self.prediction}"
