@@ -12,6 +12,7 @@ venv/
 ENV/
 env/
 
+*.h5
 # Environment variables
 *.env
 
@@ -28,3 +29,6 @@ env/
 # OS generated files
 .DS_Store
 Thumbs.db
+backend/careplus/main/indian_food_classifier_second.h5
+
+*.h5

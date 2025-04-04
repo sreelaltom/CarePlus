@@ -1,15 +1,22 @@
 import os
 import io
 import json
-import requests
 import re
+import requests
 import pdfplumber
 import pytesseract
 from PIL import Image
 from dotenv import load_dotenv
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import CancerPrediction, MedicalFile, MedicalReport, Investigation
+
+from .models import (
+    CancerPrediction,
+    MedicalFile,
+    MedicalReport,
+    Investigation,
+    IndianFoodPrediction,
+)
 from .cloudinary_helper import upload_file
 
 load_dotenv()
@@ -158,3 +165,11 @@ class CancerPredictionSerializer(serializers.ModelSerializer):
     class Meta:
         model = CancerPrediction
         fields = ["id", "user", "image_url", "prediction", "uploaded_at"]
+from rest_framework import serializers
+from .models import IndianFoodPrediction
+
+class IndianFoodPredictionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IndianFoodPrediction
+        fields = ['id', 'image_url', 'prediction', 'confidence', 'uploaded_at']
+

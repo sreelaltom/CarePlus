@@ -1,24 +1,19 @@
 import os
-import io   
+import io
+import uuid
+import logging
 import numpy as np
 from PIL import Image
 from django.conf import settings
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views import View
-import numpy as np
-import os
-from django.conf import settings
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
-import cloudinary.uploader
-import logging
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, permissions, status
+from rest_framework.generics import ListAPIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -27,19 +22,24 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import cloudinary.uploader
-from cloudinary.uploader import upload
+from cloudinary.uploader import upload, destroy
 from django.contrib.auth import get_user_model
-from django.http import JsonResponse
-from django.views import View
-from django.shortcuts import get_object_or_404
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
-from .models import CancerPrediction
 
-from .models import MedicalFile, MedicalReport, Investigation, CancerPrediction
-from .serializers import MedicalFileSerializer, RegisterSerializer, CancerPredictionSerializer
+from .models import (
+    MedicalFile,
+    MedicalReport,
+    Investigation,
+    CancerPrediction,
+    IndianFoodPrediction,
+)
+from .serializers import (
+    MedicalFileSerializer,
+    RegisterSerializer,
+    CancerPredictionSerializer,
+    IndianFoodPredictionSerializer,
+)
 from .cloudinary_helper import delete_file
-
+from .food_detection_helper import predict_food_from_memory
 
 
 User = get_user_model()
@@ -343,3 +343,82 @@ class DeleteCancerImageView(APIView):
         image.delete()
         
         return Response({'message': 'Cancer image deleted successfully'}, status=status.HTTP_200_OK)
+
+class IndianFoodPredictionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = [MultiPartParser]
+
+    def post(self, request):
+        file = request.FILES.get("file")
+        if not file:
+            return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Read file once
+        file_bytes = file.read()
+        file_stream = io.BytesIO(file_bytes)
+
+        # Predict
+        prediction_file = InMemoryUploadedFile(
+            file=io.BytesIO(file_bytes),
+            field_name="image",
+            name=file.name,
+            content_type=file.content_type,
+            size=len(file_bytes),
+            charset=None
+        )
+
+        result = predict_food_from_memory(prediction_file)
+        if "error" in result:
+            return Response(result, status=status.HTTP_400_BAD_REQUEST)
+
+        # Upload to Cloudinary
+        file_stream.seek(0)
+        unique_id = str(uuid.uuid4())
+        cloud_result = upload(file_stream, folder="indian_food_predictions", public_id=unique_id)
+        image_url = cloud_result.get("secure_url")
+
+        # Save to DB
+        prediction_obj = IndianFoodPrediction.objects.create(
+            user=request.user,
+            image_url=image_url,
+            prediction=result["prediction"],
+            confidence=result["confidence"]
+        )
+
+        return Response({
+            "id": prediction_obj.id,
+            "prediction": result["prediction"],
+            "confidence": result["confidence"],
+            "nutririons": result["nutririons"],
+            "image_url": image_url,
+        }, status=status.HTTP_201_CREATED)
+
+
+class DeleteIndianFoodPredictionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, pk):
+        prediction = get_object_or_404(IndianFoodPrediction, pk=pk, user=request.user)
+
+        try:
+            # Get public ID from URL
+            public_id = prediction.image_url.split("/")[-1].split(".")[0]
+            full_public_id = f"indian_food_predictions/{public_id}"
+
+            # Delete from Cloudinary
+            destroy(full_public_id)
+
+            # Delete from DB
+            prediction.delete()
+
+            return Response({"message": "Prediction and image deleted."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class ListIndianFoodPredictionsView(ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = IndianFoodPredictionSerializer
+
+    def get_queryset(self):
+        return IndianFoodPrediction.objects.filter(user=self.request.user).order_by("-uploaded_at")

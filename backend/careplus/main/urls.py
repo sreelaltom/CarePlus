@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegisterView, LoginView, TokenRefreshView, UploadMedicalFileView, GetMedicalFilesView, DeleteMedicalFileView,UserMedicalFilesView,FilterMedicalFilesView,CancerPredictionView,UserPredictionsView,DeleteCancerImageView,DropDown
+from .views import RegisterView, LoginView, TokenRefreshView, UploadMedicalFileView, GetMedicalFilesView, DeleteMedicalFileView,UserMedicalFilesView,FilterMedicalFilesView,CancerPredictionView,UserPredictionsView,DeleteCancerImageView,DropDown,IndianFoodPredictionView,DeleteIndianFoodPredictionView,ListIndianFoodPredictionsView
 from rest_framework_simplejwt.views import (TokenObtainPairView,)
 
 urlpatterns = [
@@ -15,5 +15,8 @@ urlpatterns = [
        path("predict-cancer/", CancerPredictionView.as_view(), name="predict-cancer"),
     path("user-predictions/", UserPredictionsView.as_view(), name="user-predictions"),
     path('delete-cancer-image/<int:pk>/', DeleteCancerImageView.as_view(), name='delete-cancer-image'),
-    path("dropdown/",DropDown.as_view(),name='dropdown')
+    path("dropdown/",DropDown.as_view(),name='dropdown'),
+    path("predict/indian-food/", IndianFoodPredictionView.as_view(), name="predict_food"),
+    path("predict/indian-food/<int:pk>/delete/", DeleteIndianFoodPredictionView.as_view(), name="delete_prediction"),
+     path("predict/indian-food/all/", ListIndianFoodPredictionsView.as_view(), name="list_predictions"),
 ]
