@@ -11,7 +11,7 @@ class MedicalRecordRepositoryImplementation implements MedicalRecordRepository {
   @override
   Future<Either<Failure, MedicalRecord>> upload({
     required String filePath,
-    required MedicalRecordType type,
+    required MedicalRecordCategory type,
   }) async {
     try {
       final medicalRecord =

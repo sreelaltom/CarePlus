@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/bottom_nav/bottom_navigation_page.dart';
 import 'package:frontend/core/routes/route_constants.dart';
 import 'package:frontend/core/routes/slide_transition_wrapper.dart';
-import 'package:frontend/features/checkup/checkups_page.dart';
+import 'package:frontend/features/analysis/analysis_page.dart';
 import 'package:frontend/features/auth/domain/entities/session.dart';
 import 'package:frontend/features/auth/presentation/bloc/session_cubit/session_cubit.dart';
-// import 'package:frontend/core/config/session_manager.dart';
 import 'package:frontend/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend/features/auth/presentation/pages/register_page_one.dart';
 import 'package:frontend/features/auth/presentation/pages/register_page_two.dart';
@@ -62,8 +61,6 @@ class RouterConfiguration {
           await serviceLocator<SessionCubit>().loadSession();
           if (serviceLocator.isRegistered<Session>()) {
             developer.log("GO ROUTER: Redirecting user to main ");
-            // final session = serviceLocator<Session>();
-            // return '/main/${session.userID}/${session.accessToken}/${session.refreshToken}';
             return '/history';
           } else {
             developer.log("GO ROUTER: Redirecting user to login");
@@ -127,9 +124,9 @@ class RouterConfiguration {
             navigatorKey: _settingsNavigatorKey,
             routes: [
               GoRoute(
-                name: RouteNames.checkups,
-                path: '/checkups',
-                builder: (context, state) => CheckupsPage(),
+                name: RouteNames.analysis,
+                path: '/analysis',
+                builder: (context, state) => AnalysisPage(),
               ),
             ],
           ),

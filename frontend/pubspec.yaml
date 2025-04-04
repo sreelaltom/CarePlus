@@ -50,6 +50,7 @@ dependencies:
   open_file: ^3.5.10
   equatable: ^2.0.7
   image_picker: ^1.1.2
+  fl_chart: ^0.70.2
   # flutter_native_splash: ^2.4.4
 
 dev_dependencies:

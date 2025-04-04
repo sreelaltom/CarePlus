@@ -6,7 +6,7 @@ class RouteNames {
   static const main = 'main';
   static const history = 'history';
   static const profile = 'profile';
-  static const checkups = 'checkups';
+  static const analysis = 'analysis';
   static const medicalRecords = 'medicalRecords';
   static const chat = 'chat';
 }

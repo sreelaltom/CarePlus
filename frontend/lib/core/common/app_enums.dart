@@ -22,21 +22,37 @@ enum AuthFailureType {
   const AuthFailureType(this.message);
 }
 
-enum MedicalRecordType {
+enum MedicalRecordCategory {
   labResult(apiValue: "lab_result", dropdownValue: 'Lab result'),
   prescription(apiValue: "prescription", dropdownValue: 'Prescription'),
-  chestCancerReport(apiValue: "chest_cancer_report", dropdownValue: 'Chest Cancer Report');
+  chestCancerReport(
+      apiValue: "chest_cancer_report", dropdownValue: 'Chest Cancer Report');
 
   final String apiValue;
   final String dropdownValue;
 
-  const MedicalRecordType({
+  const MedicalRecordCategory({
     required this.apiValue,
     required this.dropdownValue,
-  });  
+  });
 }
 
 enum FileSource {
   camera,
   device,
+}
+
+enum HealthParameter {
+  // bp(unit: "mmHg", dropdownValue: "Blood Pressure" ),
+  // cholesterol(unit: "mg/dl", dropdownValue: "Cholesterol"),
+  // sugar(unit: "mg/dl", dropdownValue: "Sugar"),
+  calcium(unit:"cal", dropdownValue: "Calcium")
+  ;
+
+  final String unit;
+  final String dropdownValue;
+  const HealthParameter({
+    required this.unit,
+    required this.dropdownValue,
+  });
 }

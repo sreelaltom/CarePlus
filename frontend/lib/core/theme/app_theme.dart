@@ -4,10 +4,10 @@ import 'package:frontend/core/theme/app_text_theme.dart';
 
 class AppTheme {
   static get light => ThemeData(
-        brightness: Brightness.light,
+        brightness: Brightness.dark,
         primaryColor: AppColors.primary,
         scaffoldBackgroundColor: AppColors.primary,
-        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary, brightness: Brightness.dark),
         fontFamily: 'Montserrat',
         textTheme: AppTextTheme.montSerrat,
         appBarTheme: AppBarTheme(
@@ -56,7 +56,7 @@ class AppTheme {
             ),
             backgroundColor: AppColors.darkNavy,
             foregroundColor: AppColors.teal,
-            minimumSize: Size(double.infinity, 55),
+            // minimumSize: Size(double.infinity, 55),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(

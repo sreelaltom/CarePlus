@@ -7,7 +7,7 @@ import 'package:frontend/service_locator.dart';
 class UploadMedicalRecordUseCase {
   Future<Either<String, MedicalRecord>> call({
     required String filePath,
-    required MedicalRecordType type,
+    required MedicalRecordCategory type,
   }) async {
     final response = await serviceLocator<MedicalRecordRepository>()
         .upload(filePath: filePath, type: type);

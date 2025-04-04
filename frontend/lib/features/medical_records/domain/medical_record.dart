@@ -3,7 +3,7 @@ import 'package:frontend/core/common/app_enums.dart';
 
 class MedicalRecord extends Equatable{
   final int id;
-  final MedicalRecordType type;
+  final MedicalRecordCategory type;
   final String url;
   final DateTime createdAt;
   // final String fileName;
