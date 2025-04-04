@@ -4,8 +4,8 @@ abstract class UiConstants {
   static const navBarData = [
     {
       "index": 0,
-      "label": "Recent",
-      "icon": Icons.manage_history_outlined,
+      "label": "Home",
+      "icon": Icons.home_outlined,
       "selected_icon": Icons.manage_history,
     },
     {

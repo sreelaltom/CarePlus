@@ -52,7 +52,7 @@ class AnalysisChart extends StatelessWidget {
                       child: SizedBox(
                         width: sWidth*0.6,
                         child: Text(
-                          "No data found for ${state.healthParameter.dropdownValue} in period ${state.fromDate.day}/${state.fromDate.month}/${state.fromDate.year} - ${state.toDate.day}/${state.toDate.month}/${state.toDate.year}",
+                          "No data found for ${state.healthParameter.dropdownValue} from ${state.fromDate.day} ${_getMonth(state.fromDate.month)}, ${state.fromDate.year} - ${state.toDate.day}/${_getMonth(state.toDate.month)}, ${state.toDate.year}",
                           textAlign: TextAlign.center,             
                           style: Theme.of(context)
                               .textTheme
@@ -117,7 +117,7 @@ class AnalysisChart extends StatelessWidget {
                                           days: currentDateDifference.toInt()));
                                   if (state.daySpan <= 31) {
                                     return Text(
-                                      "${currentDate.day}/${currentDate.month}",
+                                      "${currentDate.day} ${_getMonth(currentDate.month)}",
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodySmall!
