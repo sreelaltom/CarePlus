@@ -11,21 +11,21 @@ import 'package:frontend/features/auth/presentation/pages/login_page.dart';
 import 'package:frontend/features/auth/presentation/pages/register_page_one.dart';
 import 'package:frontend/features/auth/presentation/pages/register_page_two.dart';
 import 'package:frontend/features/chat/chat_page.dart';
-import 'package:frontend/features/history/history_page.dart';
+import 'package:frontend/features/home/home_page.dart';
 import 'package:frontend/features/medical_records/presentation/medical_records_page.dart';
 import 'package:frontend/features/profile/profile_page.dart';
 import 'package:frontend/service_locator.dart';
 import 'package:go_router/go_router.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _historyNavigatorKey =
+final GlobalKey<NavigatorState> _homeNavigatorKey =
     GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _mediaNavigatorKey =
     GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _chatNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _profileNavigatorKey =
     GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> _settingsNavigatorKey =
+final GlobalKey<NavigatorState> _analysisNavigatorKey =
     GlobalKey<NavigatorState>();
 
 class RouterConfiguration {
@@ -61,7 +61,7 @@ class RouterConfiguration {
           await serviceLocator<SessionCubit>().loadSession();
           if (serviceLocator.isRegistered<Session>()) {
             developer.log("GO ROUTER: Redirecting user to main ");
-            return '/history';
+            return '/home';
           } else {
             developer.log("GO ROUTER: Redirecting user to login");
             return '/login';
@@ -81,12 +81,12 @@ class RouterConfiguration {
             BottomNavigationPage(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
-            navigatorKey: _historyNavigatorKey,
+            navigatorKey: _homeNavigatorKey,
             routes: [
               GoRoute(
-                name: RouteNames.history,
-                path: '/history',
-                builder: (context, state) => HistoryPage(),
+                name: RouteNames.home,
+                path: '/home',
+                builder: (context, state) => HomePage(),
               ),
             ],
           ),
@@ -121,7 +121,7 @@ class RouterConfiguration {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _settingsNavigatorKey,
+            navigatorKey: _analysisNavigatorKey,
             routes: [
               GoRoute(
                 name: RouteNames.analysis,
