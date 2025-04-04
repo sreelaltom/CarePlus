@@ -28,9 +28,9 @@ abstract class UiConstants {
     },
     {
       "index": 4,
-      "label": "Checkups",
-      "icon": Icons.calendar_month_outlined,
-      "selected_icon": Icons.calendar_month,
+      "label": "Analysis",
+      "icon": Icons.analytics_outlined,
+      "selected_icon": Icons.analytics,
     },
   ];
   

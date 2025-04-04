@@ -1,4 +1,8 @@
 import 'package:frontend/core/network/cubit/connectivity_cubit.dart';
+import 'package:frontend/features/analysis/data/analysis_remote_data_source.dart';
+import 'package:frontend/features/analysis/data/analysis_repository_implementation.dart';
+import 'package:frontend/features/analysis/domain/analysis_repository.dart';
+import 'package:frontend/features/analysis/domain/get_health_readings_use_case.dart';
 import 'package:frontend/features/auth/data/auth_remote_data_source.dart';
 import 'package:frontend/features/auth/data/auth_repository_implementation.dart';
 import 'package:frontend/features/auth/domain/auth_repository.dart';
@@ -12,7 +16,7 @@ import 'package:frontend/features/medical_records/domain/use_case/delete_medical
 import 'package:frontend/features/medical_records/domain/use_case/get_medical_records_use_case.dart';
 import 'package:frontend/features/medical_records/domain/use_case/upload_medical_record_use_case.dart';
 import 'package:get_it/get_it.dart';
-import 'dart:developer' as developer;
+import 'dart:developer' as developer show log;
 
 import 'package:image_picker/image_picker.dart';
 
@@ -21,6 +25,7 @@ final serviceLocator = GetIt.instance;
 abstract class Dependencies {
   static bool isAuthRegistered = false;
   static bool isMedicalRecordRegistered = false;
+  static bool isAnalysisRegistered = false;
 
   static Future<void> initialize() async {
     isAuthRegistered = true;
@@ -106,9 +111,27 @@ abstract class Dependencies {
         )
         ..registerLazySingleton<MedicalRecordRemoteDataSource>(
           () => MedicalRecordRemoteDataSourceImplementation(),
-        )..registerLazySingleton<ImagePicker>(() => ImagePicker());
+        )
+        ..registerLazySingleton<ImagePicker>(() => ImagePicker());
       isMedicalRecordRegistered = true;
       developer.log('SERVICE LOCATOR: Medical Record Dependencies initialized');
+    }
+  }
+
+  static Future<void> initAnalysis() async {
+    if (!isAnalysisRegistered) {
+      serviceLocator
+        ..registerLazySingleton<AnalysisRemoteDataSource>(
+          () => AnalysisRemoteDataSourceImplementation(),
+        )
+        ..registerLazySingleton<AnalysisRepository>(
+          () => AnalysisRepositoryImplementation(),
+        )
+        ..registerLazySingleton<GetHealthReadingsUseCase>(
+          () => GetHealthReadingsUseCase(),
+        );
+      isAnalysisRegistered = true;
+      developer.log('SERVICE LOCATOR: Analysis Dependencies initialized');
     }
   }
 }

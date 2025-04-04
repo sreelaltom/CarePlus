@@ -59,7 +59,7 @@ class FileOperationsCubit extends Cubit<FileOperationState> {
   void uploadFile({
     required String filePath,
     required String fileName,
-    required MedicalRecordType type,
+    required MedicalRecordCategory type,
   }) async {
     final response = await serviceLocator<UploadMedicalRecordUseCase>()
         .call(filePath: filePath, type: type);

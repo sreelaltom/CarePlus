@@ -25,11 +25,11 @@ void main() async {
 
   await Dependencies.initialize();
 
-  runApp(const HealthMonitoringApp());
+  runApp(const CarePulse());
 }
 
-class HealthMonitoringApp extends StatelessWidget {
-  const HealthMonitoringApp({super.key});
+class CarePulse extends StatelessWidget {
+  const CarePulse({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,7 @@ class HealthMonitoringApp extends StatelessWidget {
         ],
         child: MaterialApp.router(
           scaffoldMessengerKey: scaffoldMessengerKey,
-          title: 'Flutter Demo',
+          title: 'CarePulse',
           theme: AppTheme.light,
           routerConfig: RouterConfiguration.router,
           debugShowCheckedModeBanner: false,

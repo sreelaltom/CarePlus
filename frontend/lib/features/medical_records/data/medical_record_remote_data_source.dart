@@ -12,7 +12,7 @@ import 'dart:developer' as developer;
 abstract interface class MedicalRecordRemoteDataSource {
   Future<MedicalRecordModel> upload({
     required String filePath,
-    required MedicalRecordType type,
+    required MedicalRecordCategory type,
   });
 
   Future<List<MedicalRecordModel>> getAll();
@@ -25,7 +25,7 @@ class MedicalRecordRemoteDataSourceImplementation
   @override
   Future<MedicalRecordModel> upload({
     required String filePath,
-    required MedicalRecordType type,
+    required MedicalRecordCategory type,
   }) async {
     try {
       final FormData data = FormData.fromMap({

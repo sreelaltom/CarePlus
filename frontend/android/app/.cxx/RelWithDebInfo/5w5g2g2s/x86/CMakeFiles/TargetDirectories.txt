@@ -1,0 +1,2 @@
+C:/Users/user/Desktop/Workspace/MiniProject/CarePluse/frontend/android/app/.cxx/RelWithDebInfo/5w5g2g2s/x86/CMakeFiles/edit_cache.dir
+C:/Users/user/Desktop/Workspace/MiniProject/CarePluse/frontend/android/app/.cxx/RelWithDebInfo/5w5g2g2s/x86/CMakeFiles/rebuild_cache.dir

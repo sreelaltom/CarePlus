@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+          import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/service_locator.dart';
 
 class NavigationCubit extends Cubit<int> {
@@ -18,6 +18,7 @@ class NavigationCubit extends Cubit<int> {
       case 3:
         break;
       case 4:
+          await Dependencies.initAnalysis();
         break;
     }
     emit(index);

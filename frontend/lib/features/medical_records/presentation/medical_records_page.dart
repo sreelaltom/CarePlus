@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/core/common/app_enums.dart' show MedicalRecordType;
+import 'package:frontend/core/common/app_enums.dart' show MedicalRecordCategory;
 import 'package:frontend/core/theme/app_colors.dart';
 import 'package:frontend/features/medical_records/presentation/bloc/file_operations_cubit/file_operations_cubit.dart';
 import 'package:frontend/features/medical_records/presentation/bloc/medical_records_bloc/medical_records_bloc.dart';
 
-import 'package:frontend/features/medical_records/presentation/widgets/category_dropdown.dart';
+import 'package:frontend/features/medical_records/presentation/widgets/app_dropdown.dart';
 import 'package:frontend/features/medical_records/presentation/widgets/dialog_button.dart';
 import 'package:frontend/features/medical_records/presentation/widgets/file_name_field.dart';
 import 'package:frontend/features/medical_records/presentation/widgets/medical_records_list.dart';
@@ -21,13 +21,13 @@ class MedicalRecordsPage extends StatefulWidget {
 }
 
 class _MedicalRecordsPageState extends State<MedicalRecordsPage> {
-  late final ValueNotifier<MedicalRecordType> _categoryListener;
+  late final ValueNotifier<MedicalRecordCategory> _categorySelectionNotifier;
   late final TextEditingController _fileNameController;
 
   @override
   void initState() {
-    _categoryListener =
-        ValueNotifier<MedicalRecordType>(MedicalRecordType.labResult);
+    _categorySelectionNotifier =
+        ValueNotifier<MedicalRecordCategory>(MedicalRecordCategory.labResult);
     _fileNameController = TextEditingController();
     super.initState();
   }
@@ -110,7 +110,23 @@ class _MedicalRecordsPageState extends State<MedicalRecordsPage> {
                           controller: _fileNameController
                             ..text = state.fileName,
                         ),
-                        CategoryDropdown(categoryNotifier: _categoryListener),
+                        AppDropdown(
+                          selectionNotifier: _categorySelectionNotifier,
+                          items: MedicalRecordCategory.values
+                              .map(
+                                (category) => DropdownMenuItem(
+                                  value: category,
+                                  child: Text(
+                                    category.dropdownValue,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(color: AppColors.white),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
                       ],
                     ),
                   ),
@@ -130,7 +146,7 @@ class _MedicalRecordsPageState extends State<MedicalRecordsPage> {
                               fileName: _fileNameController.text.isNotEmpty
                                   ? _fileNameController.text.trim()
                                   : state.fileName,
-                              type: MedicalRecordType.labResult,
+                              type: _categorySelectionNotifier.value,
                             );
                         dialogContext.pop();
                       },
@@ -345,7 +361,7 @@ class _MedicalRecordsPageState extends State<MedicalRecordsPage> {
 
   @override
   void dispose() {
-    _categoryListener.dispose();
+    _categorySelectionNotifier.dispose();
     _fileNameController.dispose();
     super.dispose();
   }

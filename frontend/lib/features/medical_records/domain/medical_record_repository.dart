@@ -6,7 +6,7 @@ import 'package:frontend/features/medical_records/domain/medical_record.dart';
 abstract interface class MedicalRecordRepository {
   Future<Either<Failure, MedicalRecord>> upload({
     required String filePath,
-    required MedicalRecordType type,
+    required MedicalRecordCategory type,
   });
 
   Future<Either<Failure, List<MedicalRecord>>> getAll();
