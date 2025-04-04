@@ -97,7 +97,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
                         controller: _fromDateController,
                         onTap: () => _pickDate(
                           context,
-                          onChangedClearOtherPicker: true,
+                          isFromDate: true,
                           parameterSelectionNotifier:
                               _parameterSelectionNotifier,
                           initialDateNotifier: _fromDateNotifier,
@@ -105,6 +105,41 @@ class _AnalysisPageState extends State<AnalysisPage> {
                           otherPickerController: _toDateController,
                           lastDate: toDate,
                         ),
+                        // onTap: () async {
+                        //   final selectedDate = await showDatePicker(
+                        //     context: context,
+                        //     initialDate:
+                        //         _fromDateNotifier.value ?? DateTime.now(),
+                        //     firstDate: DateTime(2000),
+                        //     lastDate: toDate ?? DateTime.now(),
+                        //   );
+                        //   if (selectedDate != null) {
+                        //     _fromDateNotifier.value = selectedDate;
+                        //     _toDateController.text = '';
+                        //     _fromDateController.text = selectedDate
+                        //         .toIso8601String()
+                        //         .split('T')[0]
+                        //         .split('-')
+                        //         .reversed
+                        //         .join('/');
+                        //     if (_toDateController.text.isNotEmpty) {
+                        //       if (context.mounted) {
+                        //         context.read<ChartBloc>().add(
+                        //               LoadChartData(
+                        //                 healthParameter:
+                        //                     _parameterSelectionNotifier.value,
+                        //                 fromDate: selectedDate,
+                        //                 toDate: DateTime.tryParse(
+                        //                     _toDateController.text
+                        //                         .split('/')
+                        //                         .reversed
+                        //                         .join('-'))!,
+                        //               ),
+                        //             );
+                        //       }
+                        //     }
+                        //   }
+                        // },
                       );
                     },
                   ),
@@ -121,6 +156,36 @@ class _AnalysisPageState extends State<AnalysisPage> {
                           selfController: _toDateController,
                           firstDate: fromDate,
                         ),
+                        // onTap: () async {
+                        //   final selectedDate = await showDatePicker(
+                        //     context: context,
+                        //     initialDate:
+                        //         _toDateNotifier.value ?? DateTime.now(),
+                        //     firstDate: fromDate ?? DateTime(2000),
+                        //     lastDate: DateTime.now(),
+                        //   );
+                        //   if (selectedDate != null) {
+                        //     _toDateNotifier.value = selectedDate;
+                        //     // _toDate = selectedDate;
+                        //     _toDateController.text = selectedDate
+                        //         .toIso8601String()
+                        //         .split('T')[0]
+                        //         .split('-')
+                        //         .reversed
+                        //         .join('/');
+                        //     if (fromDate != null) {
+                        //       if (context.mounted) {
+                        //         context.read<ChartBloc>().add(
+                        //               LoadChartData(
+                        //                   healthParameter:
+                        //                       _parameterSelectionNotifier.value,
+                        //                   fromDate: fromDate,
+                        //                   toDate: selectedDate),
+                        //             );
+                        //       }
+                        //     }
+                        //   }
+                        // },
                         enabled: fromDate != null,
                         label: "To",
                         firstDate: fromDate,
@@ -157,7 +222,7 @@ void _pickDate(
   TextEditingController? otherPickerController,
   DateTime? firstDate,
   DateTime? lastDate,
-  bool onChangedClearOtherPicker = false,
+  bool isFromDate = false,
 }) async {
   final selectedDate = await showDatePicker(
     context: context,
@@ -167,7 +232,7 @@ void _pickDate(
   );
   if (selectedDate != null) {
     initialDateNotifier.value = selectedDate;
-    if (onChangedClearOtherPicker) {
+    if (isFromDate) {
       otherPickerController?.text = '';
     }
     selfController.text = selectedDate
@@ -181,9 +246,14 @@ void _pickDate(
         context.read<ChartBloc>().add(
               LoadChartData(
                 healthParameter: parameterSelectionNotifier.value,
-                fromDate: selectedDate,
-                toDate: DateTime.tryParse(
-                    otherPickerController!.text.split('/').reversed.join('-'))!,
+                fromDate:
+                    isFromDate ? selectedDate : firstDate ?? DateTime.now(),
+                toDate: isFromDate
+                    ? DateTime.tryParse(otherPickerController!.text
+                        .split('/')
+                        .reversed
+                        .join('-'))!
+                    : selectedDate,
               ),
             );
       }
