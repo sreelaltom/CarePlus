@@ -21,4 +21,8 @@ abstract class ApiUrls {
     required DateTime to,
   }) =>
       '/medical-files/filter/?parameter=$healthParameter&from=${from.year}-${from.month}-${from.day}&to=${to.year}-${to.month}-${to.day}';
+  
+  static const predictCancer = '/predict-cancer/';
+
+  static const classifyFood = '/predict/indian-food/';
 }

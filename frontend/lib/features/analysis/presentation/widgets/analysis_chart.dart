@@ -50,10 +50,10 @@ class AnalysisChart extends StatelessWidget {
                   if (state is ChartLoaded && state.chartData.isEmpty) {
                     return Center(
                       child: SizedBox(
-                        width: sWidth*0.6,
+                        width: sWidth * 0.6,
                         child: Text(
                           "No data found for ${state.healthParameter.dropdownValue} from ${state.fromDate.day} ${_getMonth(state.fromDate.month)}, ${state.fromDate.year} - ${state.toDate.day}/${_getMonth(state.toDate.month)}, ${state.toDate.year}",
-                          textAlign: TextAlign.center,             
+                          textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium!
@@ -94,9 +94,9 @@ class AnalysisChart extends StatelessWidget {
                       ],
                       betweenBarsData: [],
                       gridData: FlGridData(
-                        drawVerticalLine: true,
+                        drawVerticalLine: false,
                         drawHorizontalLine: false,
-                        verticalInterval: 2,
+                        verticalInterval: 5,
                       ),
                       titlesData: FlTitlesData(
                         show: true,
@@ -108,7 +108,26 @@ class AnalysisChart extends StatelessWidget {
                         ),
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
-                              interval: 10,
+                              // interval: state is ChartLoaded
+                              //     ? _getInterval(
+                              //         firstDate: state.fromDate.add(
+                              //           Duration(
+                              //             days: state.chartData.first.x.toInt(),
+                              //           ),
+                              //         ),
+                              //         lastDate: state.fromDate.add(
+                              //           Duration(
+                              //             days: state.chartData.last.x.toInt(),
+                              //           ),
+                              //         ),
+                              //       )
+                              //     : null,
+
+                              interval: state is ChartLoaded
+                                  ? _getInterval(
+                                      totalDays:
+                                          state.chartData.first.x.toInt())
+                                  : null,
                               showTitles: true,
                               getTitlesWidget: (currentDateDifference, meta) {
                                 if (state is ChartLoaded) {
@@ -116,12 +135,15 @@ class AnalysisChart extends StatelessWidget {
                                       Duration(
                                           days: currentDateDifference.toInt()));
                                   if (state.daySpan <= 31) {
-                                    return Text(
-                                      "${currentDate.day} ${_getMonth(currentDate.month)}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall!
-                                          .copyWith(color: AppColors.white),
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        "${currentDate.day} ${_getMonth(currentDate.month)}",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall!
+                                            .copyWith(color: AppColors.white),
+                                      ),
                                     );
                                   } else if (state.daySpan <= 365) {
                                     return Text(
@@ -147,6 +169,7 @@ class AnalysisChart extends StatelessWidget {
                         ),
                         leftTitles: AxisTitles(
                           sideTitles: SideTitles(
+                            interval: 6,
                             showTitles: true,
                             getTitlesWidget: (value, meta) => Padding(
                               padding: const EdgeInsets.all(4.0),
@@ -189,3 +212,13 @@ const months = [
 ];
 
 String _getMonth(int num) => months[num - 1];
+
+double _getInterval({required int totalDays}) {
+  if (totalDays <= 31) {
+    return (totalDays / 4).ceilToDouble();
+  } else if (totalDays <= 365) {
+    return (totalDays / 2).ceilToDouble();
+  } else {
+    return 30;
+  }
+}

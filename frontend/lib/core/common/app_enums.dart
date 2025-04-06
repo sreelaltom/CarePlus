@@ -3,7 +3,6 @@ enum AuthSuccessType {
   register("Registration Successful");
 
   final String message;
-
   const AuthSuccessType(this.message);
 }
 
@@ -46,13 +45,32 @@ enum HealthParameter {
   // bp(unit: "mmHg", dropdownValue: "Blood Pressure" ),
   // cholesterol(unit: "mg/dl", dropdownValue: "Cholesterol"),
   // sugar(unit: "mg/dl", dropdownValue: "Sugar"),
-  calcium(unit:"cal", dropdownValue: "Calcium")
-  ;
+  calcium(unit: "cal", dropdownValue: "Calcium");
 
   final String unit;
   final String dropdownValue;
   const HealthParameter({
     required this.unit,
+    required this.dropdownValue,
+  });
+}
+
+enum AnalysisType {
+  ctScanAnalysis,
+  calorieCalculation;
+}
+
+enum CtScanCategory {
+  // lung(apiValue: "lung_cancer", dropdownValue: "Lungs"),
+  chest(apiValue: "chest_cancer", dropdownValue: "Chest");
+  // liver(apiValue: "liver_cancer", dropdownValue: "Liver"),
+  // kidney(apiValue: "kidney_cancer", dropdownValue: "Kidney");
+
+  final String apiValue;
+  final String dropdownValue;
+
+  const CtScanCategory({
+    required this.apiValue,
     required this.dropdownValue,
   });
 }

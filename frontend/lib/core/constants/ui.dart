@@ -6,7 +6,7 @@ abstract class UiConstants {
       "index": 0,
       "label": "Home",
       "icon": Icons.home_outlined,
-      "selected_icon": Icons.manage_history,
+      "selected_icon": Icons.home,
     },
     {
       "index": 1,
