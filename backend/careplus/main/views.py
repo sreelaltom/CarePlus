@@ -231,7 +231,7 @@ class DropDown(APIView):
                     if isinstance(test, dict) and "test_name" in test:
                         unique_test_names.add(test["test_name"])
 
-            return Response(list(unique_test_names), status=status.HTTP_200_OK)
+            return Response(set(list(unique_test_names)), status=status.HTTP_200_OK)
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
