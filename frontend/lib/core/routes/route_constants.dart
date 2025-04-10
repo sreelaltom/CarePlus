@@ -9,4 +9,5 @@ class RouteNames {
   static const analysis = 'analysis';
   static const medicalRecords = 'medicalRecords';
   static const chat = 'chat';
+  static const analysisResult = 'analysis-result';
 }

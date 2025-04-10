@@ -9,6 +9,7 @@ import 'package:frontend/features/auth/presentation/bloc/auth_bloc/auth_bloc.dar
 import 'package:frontend/core/routes/router_configuration.dart';
 import 'package:frontend/core/theme/app_colors.dart';
 import 'package:frontend/core/theme/app_theme.dart';
+import 'package:frontend/features/home/presentation/bloc/analysis_result/analysis_result_cubit.dart';
 import 'package:frontend/service_locator.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
@@ -44,6 +45,7 @@ class CarePulse extends StatelessWidget {
         BlocProvider<ConnectivityCubit>(
           create: (_) => serviceLocator<ConnectivityCubit>(),
         ),
+        BlocProvider<AnalysisResultCubit>(create: (_) => AnalysisResultCubit()),
       ],
       child: MultiBlocListener(
         listeners: [

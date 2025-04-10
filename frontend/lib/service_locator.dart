@@ -9,6 +9,14 @@ import 'package:frontend/features/auth/domain/auth_repository.dart';
 import 'package:frontend/features/auth/presentation/bloc/session_cubit/session_cubit.dart';
 import 'package:frontend/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:frontend/features/auth/domain/use_cases/register_use_case.dart';
+import 'package:frontend/features/home/data/repository/food_classifier_repository_implementation.dart';
+import 'package:frontend/features/home/data/source/cancer_analysis_remote_data_source.dart';
+import 'package:frontend/features/home/data/source/food_remote_data_source.dart';
+import 'package:frontend/features/home/domain/repository/cancer_analysis_repository.dart';
+import 'package:frontend/features/home/data/repository/cancer_analysis_repository_implementation.dart';
+import 'package:frontend/features/home/domain/repository/food_classifier_repository.dart';
+import 'package:frontend/features/home/domain/use_cases/classify_food_use_case.dart';
+import 'package:frontend/features/home/domain/use_cases/predict_cancer_use_case.dart';
 import 'package:frontend/features/medical_records/data/medical_record_remote_data_source.dart';
 import 'package:frontend/features/medical_records/data/medical_record_repository_implementation.dart';
 import 'package:frontend/features/medical_records/domain/medical_record_repository.dart';
@@ -26,6 +34,8 @@ abstract class Dependencies {
   static bool isAuthRegistered = false;
   static bool isMedicalRecordRegistered = false;
   static bool isAnalysisRegistered = false;
+  static bool isCancerAnalysisRegistered = false;
+  static bool isFoodClassifyRegistered = false;
 
   static Future<void> initialize() async {
     isAuthRegistered = true;
@@ -132,6 +142,40 @@ abstract class Dependencies {
         );
       isAnalysisRegistered = true;
       developer.log('SERVICE LOCATOR: Analysis Dependencies initialized');
+    }
+  }
+
+  static Future<void> initCancerAnalysis() async {
+    if (!isCancerAnalysisRegistered) {
+      serviceLocator
+        ..registerLazySingleton<CancerAnalysisRemoteDataSource>(
+          () => CancerAnalysisRemoteDataSourceImplementation(),
+        )
+        ..registerLazySingleton<CancerAnalysisRepository>(
+          () => CancerAnalysisRepositoryImplementation(),
+        )
+        ..registerLazySingleton<PredictCancerUseCase>(
+          () => PredictCancerUseCase(),
+        );
+      isCancerAnalysisRegistered = true;
+      developer.log('SERVICE LOCATOR: Cancer Analysis Dependencies initialized');
+    }
+  }
+
+  static Future<void> initFoodClassifier() async {
+    if(!isFoodClassifyRegistered) {
+      serviceLocator
+        ..registerLazySingleton<FoodRemoteDataSource>(
+          () => FoodRemoteDataSourceImplementation(),
+        )
+        ..registerLazySingleton<FoodClassifierRepository>(
+          () => FoodClassifierRepositoryImplementation(),
+        )
+        ..registerLazySingleton<ClassifyFoodUseCase>(
+          () => ClassifyFoodUseCase(),
+        );
+      isFoodClassifyRegistered = true;
+      developer.log('SERVICE LOCATOR: Food classifier Dependencies initialized');
     }
   }
 }

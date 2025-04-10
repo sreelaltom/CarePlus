@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart' show Either, Left, Right;
 import 'package:frontend/core/common/app_enums.dart' show HealthParameter;
 import 'package:frontend/features/analysis/domain/analysis_repository.dart';
 import 'package:frontend/features/analysis/domain/entities/chart_point.dart';
-import 'package:frontend/features/analysis/domain/entities/health_reading.dart';
 import 'package:frontend/service_locator.dart';
 
 class GetHealthReadingsUseCase {

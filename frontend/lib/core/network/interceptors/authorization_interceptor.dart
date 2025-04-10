@@ -44,83 +44,124 @@ class AuthorizationInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401) {
-      final client = DioClient();
-      RequestOptions requestOptions = err.requestOptions;
+    try {
+      if (err.response?.statusCode == 401) {
+        final client = DioClient();
+        RequestOptions requestOptions = err.requestOptions;
 
-      if (requestOptions.path != ApiUrls.refreshToken) {
-        //Check whether user is having a valid session
-        if (serviceLocator.isRegistered<Session>()) {
-          //retrieve the refresh token
-          final refreshToken = serviceLocator<Session>().refreshToken;
-          //obtain the new access token(if failed refreshedAccessToken will be null)
-          final refreshedAccessToken =
-              await serviceLocator<AuthRemoteDataSource>()
-                  .refreshToken(token: refreshToken);
-          //if we obtain a new access token
-          if (refreshedAccessToken != null) {
-            //update the accessToken of the current session
-            serviceLocator<Session>().accessToken = refreshedAccessToken;
-            //retry the request with new accessToken
-            //the new accessToken would be added in the Authorization interceptor.
-            final response = await client.request(
-              requestOptions.path,
-              cancelToken: requestOptions.cancelToken,
-              data: requestOptions.data,
-              queryParameters: requestOptions.queryParameters,
-              onReceiveProgress: requestOptions.onReceiveProgress,
-              onSendProgress: requestOptions.onSendProgress,
-            );
-            //return the response.
-            handler.resolve(response);
-            return;
-          } else {
-            //if we do not obtain the new access Token user session is terminated
-            serviceLocator<SessionCubit>().terminateSession();
-            await _generateSessionExpiredResponse(
-              err,
-              handler,
-              message: "Cannot obtain access token",
-            );
-            return;
+        if (requestOptions.path != ApiUrls.refreshToken) {
+          //Check whether user is having a valid session
+          if (serviceLocator.isRegistered<Session>()) {
+            //retrieve the refresh token
+            final refreshToken = serviceLocator<Session>().refreshToken;
+            //obtain the new access token(if failed refreshedAccessToken will be null)
+            final refreshedAccessToken =
+                await serviceLocator<AuthRemoteDataSource>()
+                    .refreshToken(token: refreshToken);
+            //if we obtain a new access token
+            if (refreshedAccessToken != null) {
+              //update the accessToken of the current session
+              serviceLocator<Session>().accessToken = refreshedAccessToken;
+              //retry the request with new accessToken
+              //the new accessToken would be added in the Authorization interceptor.
+              final response = await client.request(
+                requestOptions.path,
+                cancelToken: requestOptions.cancelToken,
+                data: requestOptions.data,
+                queryParameters: requestOptions.queryParameters,
+                onReceiveProgress: requestOptions.onReceiveProgress,
+                onSendProgress: requestOptions.onSendProgress,
+              );
+              //return the response.
+              handler.resolve(response);
+              return;
+            } else {
+              //if we do not obtain the new access Token user session is terminated
+              serviceLocator<SessionCubit>().terminateSession();
+              await _generateSessionExpiredResponse(
+                err,
+                handler,
+                message: "Cannot obtain access token",
+              );
+              return;
+            }
           }
+        } else {
+          await _generateSessionExpiredResponse(
+            err,
+            handler,
+            message: "Refresh Token Revoked",
+          );
+          return;
         }
-      } else {
-        await _generateSessionExpiredResponse(
-          err,
-          handler,
-          message: "Refresh Token Revoked",
-        );
-        return;
+      } else if (err.response?.statusCode == 409) {
+        final interceptedData = {
+          if ((err.response?.data as Map<String, dynamic>).keys.length == 1)
+            "error":
+                "${(err.response?.data as Map<String, dynamic>).keys.first.replaceAll("_", " ").capitalize} already exists."
+          else
+            "error": "Credentials already exists."
+        };
+        err.response?.data = interceptedData;
+        handler.next(err);
       }
-    } else if (err.response?.statusCode == 409) {
-      final interceptedData = {
-        if ((err.response?.data as Map<String, dynamic>).keys.length == 1)
-          "error":
-              "${(err.response?.data as Map<String, dynamic>).keys.first.replaceAll("_", " ").capitalize} already exists."
-        else
-          "error": "Credentials already exists."
-      };
-      err.response?.data = interceptedData;
-    handler.next(err);
+      handler.next(err);
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionError) {
+        handler.reject(
+          DioException(
+            requestOptions: err.requestOptions,
+            type: DioExceptionType.connectionError,
+            response: Response(
+              requestOptions: err.requestOptions,
+              statusCode: Network.noInternet.errorCode,
+              statusMessage: "No Internet connection!",
+            ),
+          ),
+        );
+      } else {
+        handler.reject(
+          DioException(
+            requestOptions: err.requestOptions,
+            type: DioExceptionType.unknown,
+            response: Response(
+              requestOptions: err.requestOptions,
+              statusCode: Internal.interceptorError.errorCode,
+              statusMessage: "Error in authorization interceptor",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      handler.reject(
+        DioException(
+          requestOptions: err.requestOptions,
+          type: DioExceptionType.unknown,
+          response: Response(
+            requestOptions: err.requestOptions,
+            statusCode: Internal.interceptorError.errorCode,
+            statusMessage: "Error in authorization interceptor",
+          ),
+        ),
+      );
     }
   }
-}
 
-Future<void> _generateSessionExpiredResponse(
-  DioException err,
-  ErrorInterceptorHandler handler, {
-  required String message,
-}) async {
-  await serviceLocator<SessionCubit>().terminateSession();
-  handler.reject(
-    DioException(
-      requestOptions: err.requestOptions,
-      response: Response(
+  Future<void> _generateSessionExpiredResponse(
+    DioException err,
+    ErrorInterceptorHandler handler, {
+    required String message,
+  }) async {
+    await serviceLocator<SessionCubit>().terminateSession();
+    handler.reject(
+      DioException(
         requestOptions: err.requestOptions,
-        statusCode: 403,
-        statusMessage: message,
+        response: Response(
+          requestOptions: err.requestOptions,
+          statusCode: 403,
+          statusMessage: message,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

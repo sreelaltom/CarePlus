@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/common/app_enums.dart' show MedicalRecordCategory;
+import 'package:frontend/core/common/app_utilities.dart';
 import 'package:frontend/core/theme/app_colors.dart';
 import 'package:frontend/features/medical_records/presentation/bloc/file_operations_cubit/file_operations_cubit.dart';
 import 'package:frontend/features/medical_records/presentation/bloc/medical_records_bloc/medical_records_bloc.dart';
@@ -10,7 +11,6 @@ import 'package:frontend/features/medical_records/presentation/widgets/dialog_bu
 import 'package:frontend/features/medical_records/presentation/widgets/file_name_field.dart';
 import 'package:frontend/features/medical_records/presentation/widgets/medical_records_list.dart';
 import 'package:frontend/features/medical_records/presentation/widgets/upload_option.dart';
-import 'dart:developer' as developer show log;
 import 'package:go_router/go_router.dart';
 
 class MedicalRecordsPage extends StatefulWidget {
@@ -32,42 +32,6 @@ class _MedicalRecordsPageState extends State<MedicalRecordsPage> {
     super.initState();
   }
 
-  void _showUploadOptions(
-    BuildContext context, {
-    required List<UploadOption> options,
-    double height = 150,
-  }) {
-    developer.log("CONTEXT inside showUploadOptions: ${context.hashCode}");
-    final sWidth = MediaQuery.of(context).size.width;
-    final rows = (options.length / 3).ceil();
-
-    showModalBottomSheet(
-      constraints: BoxConstraints(
-        maxHeight: sWidth / (options.length < 3 ? 2 : 3 / rows),
-      ),
-      useRootNavigator: true,
-      backgroundColor: AppColors.primary,
-      context: context,
-      builder: (bottomSheetContext) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: GridView(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent:
-                    MediaQuery.of(bottomSheetContext).size.width /
-                        (options.length < 3 ? 2 : 3),
-                childAspectRatio: 1,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              children: options,
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -324,7 +288,7 @@ class _MedicalRecordsPageState extends State<MedicalRecordsPage> {
         floatingActionButton: FloatingActionButton.extended(
           icon: const Icon(Icons.add),
           onPressed: () {
-            _showUploadOptions(
+            AppUtilities.showUploadOptions(
               context,
               height: 130,
               options: [

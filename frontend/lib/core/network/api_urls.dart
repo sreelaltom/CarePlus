@@ -1,10 +1,10 @@
 abstract class ApiUrls {
   static String get baseUrl => _baseUrl;
   //real device
-  // static const _baseUrl = 'http://192.168.201.180:8000';
+  // static const _baseUrl = 'http://192.168.225.180:8000';
   //desktop
   // static const _baseUrl = 'http://127.0.0.1:8000';
-  //virtual device
+  //virtual devi
   static const _baseUrl = 'http://10.0.2.2:8000';
 
   static const register = '/register/';
@@ -21,4 +21,8 @@ abstract class ApiUrls {
     required DateTime to,
   }) =>
       '/medical-files/filter/?parameter=$healthParameter&from=${from.year}-${from.month}-${from.day}&to=${to.year}-${to.month}-${to.day}';
+
+  static const predictCancer = '/predict-cancer/';
+
+  static const classifyFood = '/predict/indian-food/';
 }

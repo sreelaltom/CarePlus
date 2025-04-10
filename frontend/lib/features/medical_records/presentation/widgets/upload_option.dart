@@ -23,7 +23,10 @@ class UploadOption extends StatelessWidget {
       children: [
         IconButton(
           onPressed: onSelected,
-          style: IconButton.styleFrom(shape: CircleBorder()),
+          style: IconButton.styleFrom(
+            shape: CircleBorder(),
+            padding: const EdgeInsets.all(16),
+          ),
           icon: icon,
         ),
         Text(

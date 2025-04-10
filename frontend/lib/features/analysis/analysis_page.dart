@@ -6,7 +6,6 @@ import 'package:frontend/features/analysis/presentation/bloc/chart_bloc.dart';
 import 'package:frontend/features/analysis/presentation/widgets/analysis_chart.dart';
 import 'package:frontend/features/analysis/presentation/widgets/date_selector.dart';
 import 'package:frontend/features/medical_records/presentation/widgets/app_dropdown.dart';
-import 'dart:developer' as developer show log;
 
 class AnalysisPage extends StatefulWidget {
   const AnalysisPage({super.key});
@@ -19,9 +18,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
   late final ValueNotifier<HealthParameter> _parameterSelectionNotifier;
   late final ValueNotifier<DateTime?> _fromDateNotifier;
   late final ValueNotifier<DateTime?> _toDateNotifier;
-  // late DateTime _toDate;
-  // late final ValueNotifier<String> _fromDateSelectionNotifier;
-  // late final ValueNotifier<String> _toDateSelectionNotifier;
   late final TextEditingController _fromDateController;
   late final TextEditingController _toDateController;
 
@@ -30,9 +26,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
     _parameterSelectionNotifier = ValueNotifier(HealthParameter.calcium);
     _fromDateNotifier = ValueNotifier(null);
     _toDateNotifier = ValueNotifier(null);
-    // _toDate = DateTime.now();
-    // _fromDateSelectionNotifier = ValueNotifier("From");
-    // _toDateSelectionNotifier = ValueNotifier("To");
     _fromDateController = TextEditingController();
     _toDateController = TextEditingController();
     super.initState();
@@ -105,41 +98,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
                           otherPickerController: _toDateController,
                           lastDate: toDate,
                         ),
-                        // onTap: () async {
-                        //   final selectedDate = await showDatePicker(
-                        //     context: context,
-                        //     initialDate:
-                        //         _fromDateNotifier.value ?? DateTime.now(),
-                        //     firstDate: DateTime(2000),
-                        //     lastDate: toDate ?? DateTime.now(),
-                        //   );
-                        //   if (selectedDate != null) {
-                        //     _fromDateNotifier.value = selectedDate;
-                        //     _toDateController.text = '';
-                        //     _fromDateController.text = selectedDate
-                        //         .toIso8601String()
-                        //         .split('T')[0]
-                        //         .split('-')
-                        //         .reversed
-                        //         .join('/');
-                        //     if (_toDateController.text.isNotEmpty) {
-                        //       if (context.mounted) {
-                        //         context.read<ChartBloc>().add(
-                        //               LoadChartData(
-                        //                 healthParameter:
-                        //                     _parameterSelectionNotifier.value,
-                        //                 fromDate: selectedDate,
-                        //                 toDate: DateTime.tryParse(
-                        //                     _toDateController.text
-                        //                         .split('/')
-                        //                         .reversed
-                        //                         .join('-'))!,
-                        //               ),
-                        //             );
-                        //       }
-                        //     }
-                        //   }
-                        // },
                       );
                     },
                   ),
@@ -156,36 +114,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
                           selfController: _toDateController,
                           firstDate: fromDate,
                         ),
-                        // onTap: () async {
-                        //   final selectedDate = await showDatePicker(
-                        //     context: context,
-                        //     initialDate:
-                        //         _toDateNotifier.value ?? DateTime.now(),
-                        //     firstDate: fromDate ?? DateTime(2000),
-                        //     lastDate: DateTime.now(),
-                        //   );
-                        //   if (selectedDate != null) {
-                        //     _toDateNotifier.value = selectedDate;
-                        //     // _toDate = selectedDate;
-                        //     _toDateController.text = selectedDate
-                        //         .toIso8601String()
-                        //         .split('T')[0]
-                        //         .split('-')
-                        //         .reversed
-                        //         .join('/');
-                        //     if (fromDate != null) {
-                        //       if (context.mounted) {
-                        //         context.read<ChartBloc>().add(
-                        //               LoadChartData(
-                        //                   healthParameter:
-                        //                       _parameterSelectionNotifier.value,
-                        //                   fromDate: fromDate,
-                        //                   toDate: selectedDate),
-                        //             );
-                        //       }
-                        //     }
-                        //   }
-                        // },
                         enabled: fromDate != null,
                         label: "To",
                         firstDate: fromDate,
@@ -195,7 +123,20 @@ class _AnalysisPageState extends State<AnalysisPage> {
                   ),
                 ],
               ),
-              AnalysisChart(),
+              AnalysisChart(
+                refreshAction: () {
+                  if (_fromDateNotifier.value != null &&
+                      _toDateNotifier.value != null) {
+                    context.read<ChartBloc>().add(
+                          LoadChartData(
+                            healthParameter: _parameterSelectionNotifier.value,
+                            fromDate: _fromDateNotifier.value!,
+                            toDate: _toDateNotifier.value!,
+                          ),
+                        );
+                  }
+                },
+              ),
             ],
           ),
         ),
