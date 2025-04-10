@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/core/common/app_enums.dart';
 import 'package:frontend/features/home/domain/use_cases/predict_cancer_use_case.dart';
 import 'package:frontend/features/home/domain/use_cases/classify_food_use_case.dart';
-import 'package:frontend/features/home/presentation/bloc/analyis_result/analysis_result_state.dart';
+import 'package:frontend/features/home/presentation/bloc/analysis_result/analysis_result_state.dart';
 import 'package:frontend/service_locator.dart';
 
 class AnalysisResultCubit extends Cubit<AnalysisResultState> {

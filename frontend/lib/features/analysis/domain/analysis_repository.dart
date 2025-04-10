@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart' show Either;
 import 'package:frontend/core/common/app_enums.dart' show HealthParameter;
 import 'package:frontend/core/errors/failures.dart';
-import 'package:frontend/features/analysis/domain/entities/health_reading.dart';
 import 'package:frontend/features/analysis/domain/entities/chart_point.dart';
 
 

@@ -5,4 +5,4 @@
 cd /d %~dp0backend
 call venv\Scripts\activate
 cd careplus
-python manage.py runserver
+python manage.py runserver %1

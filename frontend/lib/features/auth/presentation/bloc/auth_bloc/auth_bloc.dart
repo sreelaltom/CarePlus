@@ -63,7 +63,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       registrationID: event.registrationId,
       password: event.password,
     );
-    response.fold(
+    response.fold(   
       (error) async => emit(AuthFailure(error: error)),
       (userAndSession) async {
         emit(

@@ -4,7 +4,7 @@ import 'package:frontend/core/common/app_enums.dart' show AnalysisType;
 import 'package:frontend/core/common/app_utilities.dart';
 import 'package:frontend/core/routes/route_constants.dart';
 import 'package:frontend/core/theme/app_colors.dart';
-import 'package:frontend/features/home/presentation/bloc/analyis_result/analysis_result_cubit.dart';
+import 'package:frontend/features/home/presentation/bloc/analysis_result/analysis_result_cubit.dart';
 import 'package:frontend/features/home/presentation/widgets/home_option_card.dart';
 import 'package:frontend/features/home/presentation/bloc/image_operation/image_operation_cubit.dart';
 import 'package:frontend/features/home/presentation/bloc/image_operation/image_operation_state.dart';

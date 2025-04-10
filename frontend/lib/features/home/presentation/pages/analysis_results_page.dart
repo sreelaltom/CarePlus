@@ -6,8 +6,8 @@ import 'package:frontend/core/common/app_enums.dart'
     show AnalysisType, CtScanCategory;
 import 'package:frontend/core/config/responsive.dart';
 import 'package:frontend/core/theme/app_colors.dart';
-import 'package:frontend/features/home/presentation/bloc/analyis_result/analysis_result_cubit.dart';
-import 'package:frontend/features/home/presentation/bloc/analyis_result/analysis_result_state.dart';
+import 'package:frontend/features/home/presentation/bloc/analysis_result/analysis_result_cubit.dart';
+import 'package:frontend/features/home/presentation/bloc/analysis_result/analysis_result_state.dart';
 import 'package:frontend/features/medical_records/presentation/widgets/app_dropdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';

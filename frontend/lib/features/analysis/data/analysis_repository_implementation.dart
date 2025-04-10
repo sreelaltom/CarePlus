@@ -7,7 +7,6 @@ import 'package:frontend/core/errors/failures.dart';
 import 'package:frontend/features/analysis/data/analysis_remote_data_source.dart';
 import 'package:frontend/features/analysis/domain/analysis_repository.dart';
 import 'package:frontend/features/analysis/domain/entities/chart_point.dart';
-import 'package:frontend/features/analysis/domain/entities/health_reading.dart';
 import 'package:frontend/service_locator.dart';
 
 class AnalysisRepositoryImplementation implements AnalysisRepository {
